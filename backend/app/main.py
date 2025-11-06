@@ -49,7 +49,15 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Add CORS middleware
 # SECURITY: In production, replace ["*"] with your actual frontend domain(s)
 # Example: allow_origins=["https://yourdomain.com", "https://www.yourdomain.com"]
-cors_origins = os.getenv("CORS_ORIGINS", "*").split(",") if os.getenv("CORS_ORIGINS") else ["*"]
+cors_origins_str = os.getenv("CORS_ORIGINS", "*")
+if cors_origins_str and cors_origins_str.strip() and cors_origins_str.strip() != "*":
+    # Parse comma-separated origins and clean them up
+    cors_origins = [origin.strip() for origin in cors_origins_str.split(",") if origin.strip()]
+else:
+    # Default to allow all origins (development mode)
+    cors_origins = ["*"]
+# Debug logging to help troubleshoot CORS issues
+print(f"CORS Origins configured: {cors_origins}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,  # Set CORS_ORIGINS env var in production
