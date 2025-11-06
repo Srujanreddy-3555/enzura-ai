@@ -38,7 +38,21 @@ const AdminReports = () => {
           setSelectedClientId(String(data[0].id));
         }
       } catch (e) {
-        setError('Failed to load clients');
+        // Only show error for actual failures (network errors, 500, etc.), not for empty data
+        const isRealError = e.message && (
+          e.message.includes('Failed to fetch') ||
+          e.message.includes('Network') ||
+          e.message.includes('500') ||
+          e.message.includes('503') ||
+          e.message.includes('Authentication')
+        );
+        
+        if (isRealError) {
+          setError('Failed to load clients');
+        } else {
+          // Successful response with empty data - clear error, show empty state
+          setError('');
+        }
       }
     };
     fetchClients();
@@ -145,6 +159,33 @@ const AdminReports = () => {
                   <h1 className="text-2xl font-bold text-gray-900">Admin Reports</h1>
                 </div>
 
+                {/* Error Message - Only show for real errors, not empty data */}
+                {error && !loading && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center justify-between">
+                    <span>{error}</span>
+                    <button
+                      onClick={() => setError('')}
+                      className="text-red-700 hover:text-red-900 font-bold text-lg leading-none"
+                      title="Dismiss"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {/* Empty State - No clients */}
+                {!loading && !error && clients.length === 0 && (
+                  <div className="text-center py-12 bg-white rounded-xl shadow">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No clients yet</h3>
+                    <p className="mt-1 text-sm text-gray-500">Create clients in Client Management to view reports.</p>
+                  </div>
+                )}
+
+                {/* Client Selector - Only show if clients exist */}
+                {!loading && clients.length > 0 && (
                 <div className="bg-white rounded-xl shadow p-4 mb-6">
                   <div className="flex items-center gap-4">
                     <label className="text-sm text-gray-700">Client</label>
@@ -159,6 +200,7 @@ const AdminReports = () => {
                     </select>
                   </div>
                 </div>
+                )}
 
                 <div className="bg-white rounded-xl shadow p-4">
                   <div className="flex items-center justify-between mb-4">

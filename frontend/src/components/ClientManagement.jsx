@@ -162,8 +162,22 @@ const ClientManagement = () => {
       setSalesReps(salesRepsData);
       setClientUsers(clientUsersData);
     } catch (error) {
+      // Only show error for actual failures (network errors, 500, etc.), not for empty data
       if (showLoading) {
-        setError('Failed to fetch clients');
+        const isRealError = error.message && (
+          error.message.includes('Failed to fetch') ||
+          error.message.includes('Network') ||
+          error.message.includes('500') ||
+          error.message.includes('503') ||
+          error.message.includes('Authentication')
+        );
+        
+        if (isRealError) {
+          setError('Failed to fetch clients');
+        } else {
+          // Successful response with empty data - clear error, show empty state
+          setError('');
+        }
       }
       console.error('Error fetching clients:', error);
     } finally {
@@ -589,8 +603,8 @@ const ClientManagement = () => {
           </div>
         )}
         
-        {/* Error Message */}
-        {error && (
+        {/* Error Message - Only show for real errors, not empty data */}
+        {error && !loading && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center justify-between">
             <span>{error}</span>
             <button
@@ -603,7 +617,30 @@ const ClientManagement = () => {
           </div>
         )}
 
+        {/* Empty State - No clients */}
+        {!loading && !error && clients.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-2xl shadow-xl">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No clients yet</h3>
+            <p className="mt-1 text-sm text-gray-500">Get started by creating your first client.</p>
+            <div className="mt-6">
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              >
+                <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Create Client
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Clients Grid */}
+        {!loading && clients.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {clients.map((client) => (
             <div key={client.id} className="bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
@@ -833,6 +870,7 @@ const ClientManagement = () => {
             </div>
           ))}
         </div>
+        )}
 
         {/* Create Client Modal */}
         {showCreateForm && (

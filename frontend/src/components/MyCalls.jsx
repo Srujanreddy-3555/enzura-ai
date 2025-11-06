@@ -169,9 +169,25 @@ const MyCalls = () => {
         // Only log error if it's not an abort (abort is expected)
         if (err.name !== 'AbortError') {
           console.error('Failed to fetch calls:', err);
+          // Only show error for actual failures (network errors, 500, etc.), not for empty data
           if (showLoading) {
-            const errorMessage = err.message || 'Failed to load calls. Please try again.';
-            setError(errorMessage.includes('Authentication') ? errorMessage : 'Failed to load calls. Please check your connection and try again.');
+            // Check if it's a real error (network failure, 500, etc.) vs successful empty response
+            const isRealError = err.message && (
+              err.message.includes('Failed to fetch') ||
+              err.message.includes('Network') ||
+              err.message.includes('500') ||
+              err.message.includes('503') ||
+              err.message.includes('Authentication')
+            );
+            
+            if (isRealError) {
+              const errorMessage = err.message || 'Failed to load calls. Please try again.';
+              setError(errorMessage.includes('Authentication') ? errorMessage : 'Failed to load calls. Please check your connection and try again.');
+            } else {
+              // Successful response with empty data - clear error, show empty state
+              setError('');
+            }
+            
             // Don't clear existing data on error - keep showing what we have
             setCallsData(prevCalls => {
               // Only clear if we have no data at all
@@ -622,8 +638,8 @@ const MyCalls = () => {
                   </div>
                 )}
 
-                {/* Error State */}
-                {error && (
+                {/* Error State - Only show for actual errors, not empty data */}
+                {error && !loading && (
                   <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
@@ -875,7 +891,7 @@ const MyCalls = () => {
                 )}
 
                 {/* Empty State (if no calls) */}
-                {!loading && !error && paginatedCalls.length === 0 && totalCalls === 0 && (
+                {!loading && !error && callsData.length === 0 && totalCalls === 0 && (
                   <div className="text-center py-12">
                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
