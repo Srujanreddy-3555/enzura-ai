@@ -105,6 +105,25 @@ async def root():
         "status": "healthy"
     }
 
+# API root endpoint
+@app.get("/api")
+async def api_root():
+    return {
+        "message": "Enzura AI API",
+        "version": "1.0.0",
+        "status": "healthy",
+        "endpoints": {
+            "auth": "/api/auth",
+            "users": "/api/users",
+            "calls": "/api/calls",
+            "transcripts": "/api/transcripts",
+            "insights": "/api/insights",
+            "uploads": "/api/uploads",
+            "clients": "/api/clients",
+            "health": "/health"
+        }
+    }
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
