@@ -11,4 +11,3 @@ aiofiles
 passlib[bcrypt]
 python-jose[cryptography]
 pydub
-python-magic-bin
