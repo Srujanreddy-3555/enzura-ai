@@ -1,0 +1,14 @@
+[tool.pyright]
+include = ["app"]
+exclude = ["**/__pycache__", "**/node_modules", "venv", ".venv"]
+executionEnvironments = [
+    {
+        root = ".",
+        pythonVersion = "3.11",
+        extraPaths = ["app"]
+    }
+]
+typeCheckingMode = "basic"
+reportMissingImports = false
+reportMissingTypeStubs = false
+
