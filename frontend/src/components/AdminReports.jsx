@@ -34,6 +34,8 @@ const AdminReports = () => {
       try {
         const data = await apiService.getClients();
         setClients(data || []);
+        // Always clear error on successful response (even if empty)
+        setError('');
         if (data && data.length > 0) {
           setSelectedClientId(String(data[0].id));
         }
@@ -160,7 +162,7 @@ const AdminReports = () => {
                 </div>
 
                 {/* Error Message - Only show for real errors, not empty data */}
-                {error && !loading && (
+                {error && !loading && clients.length === 0 && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-center justify-between">
                     <span>{error}</span>
                     <button

@@ -65,8 +65,9 @@ const MyCalls = () => {
         }
         
         // CRITICAL: Set calls and total count immediately so UI renders fast
-        setCallsData(response.calls);
+        setCallsData(response.calls || []);
         setTotalCalls(response.total || 0);
+        // Always clear error on successful response (even if empty)
         setError('');
         
         // OPTIMIZED: Fetch insights in background (non-blocking) - don't wait for it
@@ -638,8 +639,8 @@ const MyCalls = () => {
                   </div>
                 )}
 
-                {/* Error State - Only show for actual errors, not empty data */}
-                {error && !loading && (
+                {/* Error State - Only show for actual errors when there's no data, not empty data */}
+                {error && !loading && callsData.length === 0 && totalCalls === 0 && (
                   <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
