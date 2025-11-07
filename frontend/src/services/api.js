@@ -461,15 +461,15 @@ class ApiService {
 
   // Multi-tenant Client Management endpoints
   async getClients() {
-    return this.request('/clients');
+    return this.request('/clients/');
   }
 
   async getClientById(clientId) {
-    return this.request(`/clients/${clientId}`);
+    return this.request(`/clients/${clientId}/`);
   }
 
   async createClient(clientData) {
-    const result = await this.request('/clients', {
+    const result = await this.request('/clients/', {
       method: 'POST',
       body: JSON.stringify(clientData),
     });
@@ -478,7 +478,7 @@ class ApiService {
   }
 
   async updateClient(clientId, clientData) {
-    const result = await this.request(`/clients/${clientId}`, {
+    const result = await this.request(`/clients/${clientId}/`, {
       method: 'PUT',
       body: JSON.stringify(clientData),
     });
@@ -487,40 +487,40 @@ class ApiService {
   }
 
   async deleteClient(clientId) {
-    const result = await this.request(`/clients/${clientId}`, { method: 'DELETE' });
+    const result = await this.request(`/clients/${clientId}/`, { method: 'DELETE' });
     this.clearCache(['/clients']);
     return result;
   }
 
   async getClientStats(clientId) {
-    return this.request(`/clients/${clientId}/stats`);
+    return this.request(`/clients/${clientId}/stats/`);
   }
 
   // Sales Rep Management endpoints
   async getSalesReps(clientId) {
-    return this.request(`/clients/${clientId}/sales-reps`);
+    return this.request(`/clients/${clientId}/sales-reps/`);
   }
 
   async getSalesRepById(clientId, salesRepId) {
-    return this.request(`/clients/${clientId}/sales-reps/${salesRepId}`);
+    return this.request(`/clients/${clientId}/sales-reps/${salesRepId}/`);
   }
 
   async createSalesRep(clientId, salesRepData) {
-    return this.request(`/clients/${clientId}/sales-reps`, {
+    return this.request(`/clients/${clientId}/sales-reps/`, {
       method: 'POST',
       body: JSON.stringify(salesRepData),
     });
   }
 
   async updateSalesRep(clientId, salesRepId, salesRepData) {
-    return this.request(`/clients/${clientId}/sales-reps/${salesRepId}`, {
+    return this.request(`/clients/${clientId}/sales-reps/${salesRepId}/`, {
       method: 'PUT',
       body: JSON.stringify(salesRepData),
     });
   }
 
   async deleteSalesRep(clientId, salesRepId) {
-    return this.request(`/clients/${clientId}/sales-reps/${salesRepId}`, { method: 'DELETE' });
+    return this.request(`/clients/${clientId}/sales-reps/${salesRepId}/`, { method: 'DELETE' });
   }
 
   // User Management endpoints
