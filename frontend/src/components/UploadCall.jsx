@@ -13,9 +13,7 @@ const UploadCall = () => {
   const [uploadComplete, setUploadComplete] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState('');
-  const [uploadedCalls, setUploadedCalls] = useState([]);
   const [supportedFormats, setSupportedFormats] = useState(null);
-  const [uploadSteps, setUploadSteps] = useState({});
   const [currentStep, setCurrentStep] = useState('');
   const navigate = useNavigate();
 
@@ -120,8 +118,6 @@ const UploadCall = () => {
     setUploadProgress({});
     setUploadComplete(false);
     setError('');
-    setUploadedCalls([]);
-    setUploadSteps({});
     setCurrentStep('Preparing files...');
 
     try {
@@ -145,7 +141,6 @@ const UploadCall = () => {
       if (Array.isArray(uploadResults)) {
         // All uploads successful
         successfulUploads = uploadResults;
-        setUploadedCalls(uploadResults);
         setUploadProgress(prev => {
           const newProgress = { ...prev };
           uploadResults.forEach(result => {
@@ -157,7 +152,6 @@ const UploadCall = () => {
         // Some uploads successful, some failed
         successfulUploads = uploadResults.successful_uploads;
         failedUploads = uploadResults.errors || [];
-        setUploadedCalls(uploadResults.successful_uploads);
         setUploadProgress(prev => {
           const newProgress = { ...prev };
           uploadResults.successful_uploads.forEach(result => {
@@ -175,16 +169,7 @@ const UploadCall = () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Update steps for each successful upload
-        const newSteps = {};
-        successfulUploads.forEach(upload => {
-          newSteps[upload.filename] = {
-            uploaded: true,
-            transcribing: true,
-            analyzing: false,
-            complete: false
-          };
-        });
-        setUploadSteps(newSteps);
+        // Success state details can be tracked here if needed
       }
 
       // Step 5: Show completion
@@ -219,8 +204,6 @@ const UploadCall = () => {
     setUploadProgress({});
     setUploadComplete(false);
     setError('');
-    setUploadedCalls([]);
-    setUploadSteps({});
     setCurrentStep('');
     // Reset file input
     const fileInput = document.getElementById('file-input');
