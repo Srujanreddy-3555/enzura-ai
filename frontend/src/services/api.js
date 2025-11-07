@@ -469,21 +469,27 @@ class ApiService {
   }
 
   async createClient(clientData) {
-    return this.request('/clients', {
+    const result = await this.request('/clients', {
       method: 'POST',
       body: JSON.stringify(clientData),
     });
+    this.clearCache(['/clients']);
+    return result;
   }
 
   async updateClient(clientId, clientData) {
-    return this.request(`/clients/${clientId}`, {
+    const result = await this.request(`/clients/${clientId}`, {
       method: 'PUT',
       body: JSON.stringify(clientData),
     });
+    this.clearCache(['/clients']);
+    return result;
   }
 
   async deleteClient(clientId) {
-    return this.request(`/clients/${clientId}`, { method: 'DELETE' });
+    const result = await this.request(`/clients/${clientId}`, { method: 'DELETE' });
+    this.clearCache(['/clients']);
+    return result;
   }
 
   async getClientStats(clientId) {
