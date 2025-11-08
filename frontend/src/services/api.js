@@ -272,7 +272,7 @@ class ApiService {
     params.append('limit', limit.toString());
     
     const queryString = params.toString();
-    const endpoint = `/calls?${queryString}`;
+    const endpoint = `/calls/?${queryString}`;
     
     // Returns: { calls: [...], total: number, skip: number, limit: number }
     return this.request(endpoint);
