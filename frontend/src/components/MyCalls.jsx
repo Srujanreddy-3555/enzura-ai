@@ -182,8 +182,8 @@ const MyCalls = () => {
             );
             
             if (isRealError) {
-              const errorMessage = err.message || 'Failed to load calls. Please try again.';
-              setError(errorMessage.includes('Authentication') ? errorMessage : 'Failed to load calls. Please check your connection and try again.');
+            const errorMessage = err.message || 'Failed to load calls. Please try again.';
+            setError(errorMessage.includes('Authentication') ? errorMessage : 'Failed to load calls. Please check your connection and try again.');
             } else {
               // Successful response with empty data - clear error, show empty state
               setError('');
