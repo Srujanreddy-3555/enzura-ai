@@ -575,6 +575,10 @@ class ApiService {
     return this.request(`/s3-monitoring/test-connection/${clientId}`);
   }
 
+  async getS3Diagnostics(clientId) {
+    return this.request(`/s3-monitoring/diagnostics/${clientId}`);
+  }
+
   // Enhanced Calls endpoints with multi-tenant support
   async getCallsWithFilters(statusFilter = null, salesRepFilter = null, uploadMethodFilter = null) {
     const params = new URLSearchParams();

@@ -82,15 +82,15 @@ async def upload_audio_file(
         
         logger.info(f"S3 upload successful for {sanitized_filename}: {s3_url}")
         
-        # Create call record in database (English only)
+        # Create call record in database (auto-detect language, translate to English for insights)
         call = Call(
             user_id=current_user.id,
             client_id=current_user.client_id,
             filename=sanitized_filename,
             s3_url=s3_url,
             status=CallStatus.PROCESSING,
-            language="en",  # English only
-            translate_to_english=False,  # No translation needed
+            language=None,  # Auto-detect language (supports Arabic "ar" and 100+ languages)
+            translate_to_english=True,  # Translate to English for insights generation
             upload_method=UploadMethod.MANUAL
         )
         
@@ -193,15 +193,15 @@ async def upload_multiple_audio_files(
             
             logger.info(f"S3 upload successful for {sanitized_filename}: {s3_url}")
             
-            # Create call record in database (English only)
+            # Create call record in database (auto-detect language, translate to English for insights)
             call = Call(
                 user_id=current_user.id,
                 client_id=current_user.client_id,
                 filename=sanitized_filename,
                 s3_url=s3_url,
                 status=CallStatus.PROCESSING,
-                language="en",  # English only
-                translate_to_english=False,  # No translation needed
+                language=None,  # Auto-detect language (supports Arabic "ar" and 100+ languages)
+                translate_to_english=True,  # Translate to English for insights generation
                 upload_method=UploadMethod.MANUAL
             )
             

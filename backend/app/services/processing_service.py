@@ -222,17 +222,22 @@ class ProcessingService:
                 import traceback
                 logger.error(f"⏱️ IMMEDIATE EXTRACTION traceback:\n{traceback.format_exc()}")
             
-            # Step 1: Transcribe audio - MUST USE REAL AUDIO TRANSCRIPTION (English only)
+            # Step 1: Transcribe audio - SUPPORTS MULTI-LANGUAGE (auto-detect or specified language)
+            call_language = call.language if call.language else None
+            call_translate = call.translate_to_english if hasattr(call, 'translate_to_english') else False
+            language_display = call_language if call_language else "auto-detect"
             logger.info(f"📝 Step 1: Transcribing REAL audio file for call {call_id}...")
-            logger.info(f"   Language: English")
+            logger.info(f"   Language: {language_display}")
+            logger.info(f"   Translate to English: {call_translate}")
             logger.info(f"   OpenAI API Key present: ✅ (ready for transcription)")
-            # Simple English transcription
+            
+            # Transcribe with language auto-detect or specified language
             transcript_result = await self._transcribe_audio(
                 call.s3_url, 
                 call.id, 
-                "en",  # English only
+                call_language,  # None = auto-detect, or specific language code like "ar" for Arabic
                 client_credentials,
-                translate_to_english=False  # No translation
+                translate_to_english=call_translate  # Translate to English if requested
             )
             
             # Handle tuple return (transcript_text, duration_seconds)
@@ -807,8 +812,35 @@ class ProcessingService:
                 call = db.exec(call_statement).first()
                 if call:
                     call.status = CallStatus.FAILED
+                    
+                    # Create a transcript with the error message so users can see what went wrong
+                    from ..models import Transcript
+                    error_message = str(ve)
+                    # Clean up error message for display (remove emoji and extra formatting)
+                    clean_error = error_message.replace("❌", "").replace("CRITICAL:", "").strip()
+                    
+                    # Check if transcript already exists
+                    existing_transcript = db.exec(
+                        select(Transcript).where(Transcript.call_id == call_id)
+                    ).first()
+                    
+                    if existing_transcript:
+                        # Update existing transcript with error message
+                        existing_transcript.text = f"Processing failed: {clean_error}"
+                        db.add(existing_transcript)
+                    else:
+                        # Create new transcript with error message
+                        error_transcript = Transcript(
+                            call_id=call_id,
+                            client_id=call.client_id,
+                            text=f"Processing failed: {clean_error}",
+                            language=call.language
+                        )
+                        db.add(error_transcript)
+                    
                     db.commit()
                     logger.error(f"❌ Call {call_id} marked as FAILED due to error: {ve}")
+                    logger.info(f"✅ Error message stored in transcript for user visibility")
                     # If it's an OpenAI API key error, log it prominently
                     if "OpenAI API key" in str(ve):
                         logger.error("=" * 80)
@@ -832,13 +864,40 @@ class ProcessingService:
                 call = db.exec(call_statement).first()
                 if call:
                     call.status = CallStatus.FAILED
+                    
+                    # Create a transcript with the error message so users can see what went wrong
+                    from ..models import Transcript
+                    error_message = str(e)
+                    # Clean up error message for display
+                    clean_error = error_message.replace("❌", "").replace("CRITICAL:", "").strip()
+                    
+                    # Check if transcript already exists
+                    existing_transcript = db.exec(
+                        select(Transcript).where(Transcript.call_id == call_id)
+                    ).first()
+                    
+                    if existing_transcript:
+                        # Update existing transcript with error message
+                        existing_transcript.text = f"Processing failed: {clean_error}"
+                        db.add(existing_transcript)
+                    else:
+                        # Create new transcript with error message
+                        error_transcript = Transcript(
+                            call_id=call_id,
+                            client_id=call.client_id,
+                            text=f"Processing failed: {clean_error}",
+                            language=call.language
+                        )
+                        db.add(error_transcript)
+                    
                     db.commit()
                     logger.error(f"❌ Call {call_id} marked as FAILED due to unexpected error: {e}")
+                    logger.info(f"✅ Error message stored in transcript for user visibility")
             except Exception as db_error:
                 logger.error(f"❌ Error updating call status: {db_error}")
             raise  # Re-raise the original error so caller knows it failed
     
-    async def _transcribe_audio(self, s3_url: str, call_id: int, language: str = "en", client_credentials: dict = None, translate_to_english: bool = False) -> tuple[Optional[str], Optional[int]]:
+    async def _transcribe_audio(self, s3_url: str, call_id: int, language: Optional[str] = None, client_credentials: dict = None, translate_to_english: bool = False) -> tuple[Optional[str], Optional[int]]:
         """
         Transcribe REAL audio from S3 URL using OpenAI Whisper API
         This function MUST transcribe the actual audio file - no mock transcripts unless absolutely necessary
@@ -948,7 +1007,7 @@ class ProcessingService:
             logger.error(traceback.format_exc())
             raise ValueError(f"Transcription service error: {str(e)}")
     
-    async def _transcribe_with_whisper(self, s3_url: str, call_id: int, language: str = "en", client_credentials: dict = None, translate_to_english: bool = False) -> tuple[Optional[str], Optional[int]]:
+    async def _transcribe_with_whisper(self, s3_url: str, call_id: int, language: Optional[str] = None, client_credentials: dict = None, translate_to_english: bool = False) -> tuple[Optional[str], Optional[int]]:
         """
         Transcribe REAL audio using OpenAI Whisper API
         Downloads the actual audio file from S3 and transcribes it
@@ -1086,7 +1145,7 @@ class ProcessingService:
                 logger.info(f"Transcribing audio file with speaker diarization: {temp_file_path}")
                 
                 # First, try to get detailed transcription with timestamps for speaker diarization
-                detailed_transcript = await self._get_detailed_transcription(temp_file_path, "en", call_id, False)
+                detailed_transcript = await self._get_detailed_transcription(temp_file_path, language, call_id, translate_to_english)
                 
                 if detailed_transcript:
                     # Process the detailed transcript for speaker diarization
@@ -1104,15 +1163,53 @@ class ProcessingService:
                 # Fallback to standard transcription if diarization fails
                 logger.info(f"Falling back to standard transcription for call {call_id}")
                 with open(temp_file_path, 'rb') as audio_file:
-                    # Simple English transcription - no translation needed
-                    logger.info("📝 Transcribing audio (English)")
-                    whisper_params = {
+                    # First, detect language using verbose_json to validate (Arabic and English only)
+                    logger.info(f"🔍 Detecting language for call {call_id}...")
+                    detection_params = {
                         "model": "whisper-1",
                         "file": audio_file,
-                        "response_format": "text",
-                        "language": "en"  # Force English
+                        "response_format": "verbose_json"
                     }
-                    transcript_response = self.openai_client.audio.transcriptions.create(**whisper_params)
+                    # Don't set language for detection - let Whisper auto-detect
+                    detection_response = self.openai_client.audio.transcriptions.create(**detection_params)
+                    
+                    # Validate detected language (only Arabic and English supported)
+                    detected_language = None
+                    if detection_response and hasattr(detection_response, 'language'):
+                        detected_language = detection_response.language
+                        logger.info(f"🌐 Detected language: {detected_language}")
+                        self._validate_language(detected_language, call_id)
+                    
+                    # Now do the actual transcription/translation with detected language
+                    audio_file.seek(0)  # Reset file pointer
+                    if translate_to_english:
+                        logger.info(f"📝 Translating audio to English (original language: {detected_language or language or 'auto-detect'})")
+                        # Use translations API to translate to English
+                        whisper_params = {
+                            "model": "whisper-1",
+                            "file": audio_file,
+                            "response_format": "text"
+                        }
+                        # Use detected language if available, otherwise use provided language
+                        if detected_language:
+                            whisper_params["language"] = detected_language
+                        elif language:
+                            whisper_params["language"] = language
+                        transcript_response = self.openai_client.audio.translations.create(**whisper_params)
+                    else:
+                        logger.info(f"📝 Transcribing audio in original language: {detected_language or language or 'auto-detect'}")
+                        # Use transcriptions API to keep original language
+                        whisper_params = {
+                            "model": "whisper-1",
+                            "file": audio_file,
+                            "response_format": "text"
+                        }
+                        # Use detected language if available, otherwise use provided language
+                        if detected_language:
+                            whisper_params["language"] = detected_language
+                        elif language:
+                            whisper_params["language"] = language
+                        transcript_response = self.openai_client.audio.transcriptions.create(**whisper_params)
                 
                 transcript_text = transcript_response if isinstance(transcript_response, str) else str(transcript_response)
                 
@@ -1145,35 +1242,82 @@ class ProcessingService:
             logger.error(f"   Full traceback:\n{traceback.format_exc()}")
             
             # Provide a helpful error message based on error type
-            if "NoSuchKey" in str(e) or "AccessDenied" in str(e) or "InvalidAccessKeyId" in str(e):
-                error_msg = f"S3 access error: {str(e)}. Check your AWS credentials."
-            elif "Connection" in str(e) or "timeout" in str(e).lower():
-                error_msg = f"Network/connection error: {str(e)}. Check your internet connection."
-            elif "audio" in str(e).lower() or "format" in str(e).lower():
-                error_msg = f"Audio file error: {str(e)}. File may be corrupted or unsupported format."
+            error_str = str(e).lower()
+            if "nosuchkey" in error_str or "accessdenied" in error_str or "invalidaccesskeyid" in error_str:
+                error_msg = "Unable to access audio file. Please check your AWS S3 credentials and permissions."
+            elif "connection" in error_str or "timeout" in error_str:
+                error_msg = "Network connection error. Please check your internet connection and try again."
+            elif "audio" in error_str or "format" in error_str or "unsupported" in error_str:
+                error_msg = "Audio file format error. Please ensure the file is a valid audio format (MP3, WAV, M4A, AAC, OGG, FLAC) and not corrupted."
+            elif "language" in error_str or "translation" in error_str or "not supported" in error_str:
+                error_msg = "Language processing error. Only Arabic and English are currently supported. Please ensure your audio is in one of these languages."
+            elif "openai" in error_str or "api key" in error_str:
+                error_msg = "AI service configuration error. Please contact your administrator."
+            elif "quota" in error_str or "rate limit" in error_str:
+                error_msg = "Service temporarily unavailable due to high demand. Please try again in a few minutes."
             else:
-                error_msg = f"Whisper transcription error: {str(e)}"
+                error_msg = f"Processing error: {str(e)}. Please try again or contact support if the problem persists."
             
             raise ValueError(error_msg)
     
-    async def _get_detailed_transcription(self, audio_file_path: str, language: str = "en", call_id: int = 0, translate_to_english: bool = False) -> Optional[dict]:
+    def _validate_language(self, detected_language: Optional[str], call_id: int) -> None:
+        """
+        Validate that the detected language is either Arabic (ar) or English (en)
+        Raises ValueError if language is not supported
+        """
+        if detected_language is None:
+            # If language is None, we can't validate - allow it to proceed
+            logger.warning(f"⚠️ Language detection returned None for call {call_id} - proceeding without validation")
+            return
+        
+        supported_languages = ["ar", "en"]
+        detected_language_lower = detected_language.lower() if detected_language else None
+        
+        if detected_language_lower not in supported_languages:
+            error_msg = f"Language '{detected_language}' is not supported. Only Arabic (ar) and English (en) are currently supported."
+            logger.error(f"❌ {error_msg}")
+            raise ValueError(error_msg)
+        
+        logger.info(f"✅ Language validated: {detected_language} (supported)")
+    
+    async def _get_detailed_transcription(self, audio_file_path: str, language: Optional[str] = None, call_id: int = 0, translate_to_english: bool = False) -> Optional[dict]:
         """
         Get detailed transcription with timestamps for speaker diarization
+        Supports multi-language with auto-detect and translation
         """
         try:
-            logger.info(f"Getting detailed transcription for call {call_id}")
+            logger.info(f"Getting detailed transcription for call {call_id} (language: {language or 'auto-detect'}, translate: {translate_to_english})")
             
             with open(audio_file_path, 'rb') as audio_file:
-                # Get detailed transcription with timestamps - English only
-                logger.info("📝 Getting detailed transcription (English)")
+                # Build whisper params for detailed transcription
                 whisper_params = {
                     "model": "whisper-1",
                     "file": audio_file,
                     "response_format": "verbose_json",
-                    "timestamp_granularities": ["segment", "word"],
-                    "language": "en"  # Force English
+                    "timestamp_granularities": ["segment", "word"]
                 }
-                transcript_response = self.openai_client.audio.transcriptions.create(**whisper_params)
+                
+                # Determine which API to use and set language
+                if translate_to_english:
+                    logger.info(f"📝 Getting detailed translation to English (original: {language or 'auto-detect'})")
+                    # Use translations API to translate to English
+                    # Only set language if specified (not None)
+                    if language:
+                        whisper_params["language"] = language
+                    transcript_response = self.openai_client.audio.translations.create(**whisper_params)
+                else:
+                    logger.info(f"📝 Getting detailed transcription in original language: {language or 'auto-detect'}")
+                    # Use transcriptions API to keep original language
+                    # Only set language if specified (not None) - None means auto-detect
+                    if language:
+                        whisper_params["language"] = language
+                    transcript_response = self.openai_client.audio.transcriptions.create(**whisper_params)
+            
+            # Validate detected language (only Arabic and English supported)
+            if transcript_response and hasattr(transcript_response, 'language'):
+                detected_lang = transcript_response.language
+                logger.info(f"🌐 Detected language: {detected_lang}")
+                self._validate_language(detected_lang, call_id)
             
             if transcript_response and hasattr(transcript_response, 'segments'):
                 logger.info(f"Detailed transcription retrieved for call {call_id} with {len(transcript_response.segments)} segments")
@@ -1182,6 +1326,9 @@ class ProcessingService:
                 logger.warning(f"No detailed segments found for call {call_id}")
                 return None
                 
+        except ValueError as ve:
+            # Re-raise validation errors
+            raise
         except Exception as e:
             logger.error(f"Error getting detailed transcription for call {call_id}: {e}")
             return None

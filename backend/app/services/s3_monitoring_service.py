@@ -587,7 +587,7 @@ class S3MonitoringService:
             logger.info(f"   - Sales Rep Name: {sales_rep_name}")
             logger.info(f"   - S3 URL: {s3_url}")
             logger.info(f"   - Language: None (auto-detect)")
-            logger.info(f"   - Translate to English: False")
+            logger.info(f"   - Translate to English: True (for insights generation)")
 
             # Create call record
             try:
@@ -599,8 +599,8 @@ class S3MonitoringService:
                     filename=filename,
                     s3_url=s3_url,
                     status=CallStatus.PROCESSING,
-                    language="en",  # English only
-                    translate_to_english=False,  # No translation needed
+                    language=None,  # Auto-detect language (supports Arabic "ar" and 100+ languages)
+                    translate_to_english=True,  # Translate to English for insights generation
                     upload_date=datetime.utcnow(),
                     upload_method=UploadMethod.S3_AUTO
                 )

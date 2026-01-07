@@ -742,12 +742,13 @@ async def create_call(
             detail="Database not available"
         )
     
-    # Create new call
+    # Create new call (auto-detect language, translate to English for insights)
     new_call = Call(
         filename=call_data.filename,
         s3_url=call_data.s3_url,
         status=CallStatus.PROCESSING,
-        language=call_data.language or "en",
+        language=call_data.language,  # None = auto-detect (supports Arabic "ar" and 100+ languages)
+        translate_to_english=call_data.translate_to_english if hasattr(call_data, 'translate_to_english') else True,  # Default to True for insights generation
         user_id=current_user.id,
         client_id=current_user.client_id,  # Set client_id from current user
         upload_method=call_data.upload_method or UploadMethod.MANUAL
