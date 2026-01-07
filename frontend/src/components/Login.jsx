@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import LanguageSelector from './LanguageSelector';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -72,6 +73,11 @@ const Login = () => {
     <div className="h-screen w-screen flex flex-col justify-center items-center fixed inset-0 overflow-auto" style={{
         background: 'linear-gradient(to right, #f3e8ff, #e0f2fe)'
       }}>
+        {/* Language Selector - Top Right */}
+        <div className="absolute top-6 right-6 z-10">
+          <LanguageSelector />
+        </div>
+
         {/* Back to Home Link - Top Left */}
         <Link
           to="/"

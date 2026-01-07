@@ -39,7 +39,9 @@ const LanguageSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
+  // Get current language, fallback to 'en' if i18n not ready
+  const currentLangCode = i18n?.language || 'en';
+  const currentLanguage = languages.find(lang => lang.code === currentLangCode) || languages[0];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,7 +57,9 @@ const LanguageSelector = () => {
   }, []);
 
   const handleLanguageChange = (languageCode) => {
-    i18n.changeLanguage(languageCode);
+    if (i18n) {
+      i18n.changeLanguage(languageCode);
+    }
     setIsOpen(false);
   };
 
@@ -88,7 +92,7 @@ const LanguageSelector = () => {
                 key={language.code}
                 onClick={() => handleLanguageChange(language.code)}
                 className={`w-full flex items-center space-x-3 px-4 py-2.5 text-left hover:bg-purple-50 transition-colors duration-150 ${
-                  i18n.language === language.code
+                  currentLangCode === language.code
                     ? 'bg-purple-100 border-l-4 border-purple-600'
                     : ''
                 }`}
@@ -98,7 +102,7 @@ const LanguageSelector = () => {
                   <div className="text-sm font-medium text-gray-900">{language.name}</div>
                   <div className="text-xs text-gray-500">{language.code.toUpperCase()}</div>
                 </div>
-                {i18n.language === language.code && (
+                {currentLangCode === language.code && (
                   <svg
                     className="w-5 h-5 text-purple-600"
                     fill="none"

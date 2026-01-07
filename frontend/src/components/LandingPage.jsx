@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import LanguageSelector from './LanguageSelector';
 
 const LandingPage = () => {
   const [isVisible, setIsVisible] = useState({});
@@ -43,6 +44,7 @@ const LandingPage = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <LanguageSelector />
               <Link
                 to="/login"
                 className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
