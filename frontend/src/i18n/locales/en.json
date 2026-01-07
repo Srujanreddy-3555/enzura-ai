@@ -1,0 +1,142 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "myCalls": "My Calls",
+    "uploadCall": "Upload Call",
+    "leaderboard": "Leaderboard",
+    "clientManagement": "Client Management",
+    "s3Monitoring": "S3 Monitoring",
+    "reports": "Reports",
+    "logout": "Logout",
+    "login": "Login",
+    "signIn": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "welcome": "Welcome",
+    "welcomeBack": "Welcome back",
+    "selectRole": "SELECT ROLE",
+    "admin": "Admin",
+    "client": "Client",
+    "rep": "Rep",
+    "user": "User"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalCalls": "Total Calls",
+    "processedCalls": "Processed Calls",
+    "processingCalls": "Processing Calls",
+    "averageScore": "Average Score",
+    "recentCalls": "Recent Calls",
+    "noCalls": "No calls yet",
+    "viewDetails": "View Details",
+    "uploadMethod": "Upload Method",
+    "manual": "Manual",
+    "s3Auto": "S3 Auto",
+    "salesRepStats": "Sales Rep Statistics"
+  },
+  "calls": {
+    "title": "My Calls",
+    "filename": "Filename",
+    "status": "Status",
+    "score": "Score",
+    "sentiment": "Sentiment",
+    "date": "Date",
+    "actions": "Actions",
+    "processing": "Processing",
+    "completed": "Completed",
+    "failed": "Failed",
+    "pending": "Pending",
+    "noCalls": "No calls found",
+    "uploadDate": "Upload Date",
+    "duration": "Duration"
+  },
+  "upload": {
+    "title": "Upload Call",
+    "selectFile": "Select Audio File",
+    "dragDrop": "Drag and drop an audio file here, or click to select",
+    "supportedFormats": "Supported formats: MP3, WAV, M4A, AAC, OGG, FLAC",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Upload successful!",
+    "uploadError": "Upload failed",
+    "fileTooLarge": "File is too large",
+    "invalidFormat": "Invalid file format"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "rank": "Rank",
+    "name": "Name",
+    "score": "Score",
+    "calls": "Calls",
+    "averageScore": "Average Score"
+  },
+  "login": {
+    "title": "Enzura AI",
+    "welcomeBack": "Welcome back",
+    "signInToContinue": "Sign in to your account to continue",
+    "emailAddress": "EMAIL ADDRESS",
+    "password": "PASSWORD",
+    "signIn": "Sign In",
+    "backToHome": "Back to Home",
+    "pleaseSignInUsingTab": "Please sign in using the {{role}} tab"
+  },
+  "landing": {
+    "signIn": "Sign In",
+    "getStartedFree": "Get Started Free",
+    "learnMore": "Learn More",
+    "transformSalesCalls": "Transform Your Sales Calls",
+    "intoWinningStrategies": "Into Winning Strategies",
+    "description": "Enzura AI analyzes your sales calls, extracts actionable insights, and helps your team deliver consistent, high-performing conversations that close deals."
+  },
+  "callDetail": {
+    "title": "Call Details",
+    "transcript": "Transcript",
+    "insights": "Insights",
+    "score": "Score",
+    "sentiment": "Sentiment",
+    "duration": "Duration",
+    "uploadDate": "Upload Date",
+    "status": "Status"
+  },
+  "clientManagement": {
+    "title": "Client Management",
+    "addClient": "Add Client",
+    "editClient": "Edit Client",
+    "clientName": "Client Name",
+    "bucketName": "Bucket Name",
+    "actions": "Actions"
+  },
+  "s3Monitoring": {
+    "title": "S3 Monitoring",
+    "status": "Status",
+    "lastChecked": "Last Checked",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "reports": {
+    "title": "Reports",
+    "generateReport": "Generate Report",
+    "dateRange": "Date Range",
+    "from": "From",
+    "to": "To"
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "networkError": "Network error. Please check your connection.",
+    "unauthorized": "Unauthorized. Please login again.",
+    "notFound": "Resource not found",
+    "serverError": "Server error. Please try again later."
+  }
+}
+

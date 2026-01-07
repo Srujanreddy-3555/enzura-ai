@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -30,7 +32,7 @@ const Login = () => {
       const userRole = (res?.user?.role || '').toLowerCase();
       if (userRole && userRole !== activeTab) {
         await logout();
-        setError(`Please sign in using the ${userRole} tab`);
+        setError(t('login.pleaseSignInUsingTab', { role: userRole }));
         return;
       }
       
@@ -46,7 +48,7 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  }, [email, password, activeTab, login, logout, navigate]);
+  }, [email, password, activeTab, login, logout, navigate, t]);
 
   // OPTIMIZED: Memoized tab buttons to prevent re-renders
   const tabButtons = useMemo(() => (
@@ -78,7 +80,7 @@ const Login = () => {
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Back to Home
+          {t('login.backToHome')}
         </Link>
         
         <div className="w-full max-w-md px-6">
@@ -92,13 +94,13 @@ const Login = () => {
             textShadow: '0 0 30px rgba(147, 51, 234, 0.3)',
             letterSpacing: '-0.5px'
           }}>
-            Enzura AI
+            {t('login.title')}
           </h1>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Welcome back
+            {t('login.welcomeBack')}
           </h2>
           <p className="text-sm text-gray-600">
-            Sign in to your account to continue
+            {t('login.signInToContinue')}
           </p>
         </div>
         
@@ -107,7 +109,7 @@ const Login = () => {
             {/* SELECT ROLE Section */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
-                SELECT ROLE
+                {t('login.selectRole')}
               </label>
               <div className="flex gap-2 bg-gray-50 rounded-full p-1">
                 {tabButtons}
@@ -117,7 +119,7 @@ const Login = () => {
             {/* EMAIL ADDRESS Section */}
             <div>
               <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
-                EMAIL ADDRESS
+                {t('login.emailAddress')}
               </label>
               <input
                 id="email"
@@ -134,7 +136,7 @@ const Login = () => {
             {/* PASSWORD Section */}
             <div>
               <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
-                PASSWORD
+                {t('login.password')}
               </label>
               <input
                 id="password"
@@ -176,10 +178,10 @@ const Login = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Signing in...
+                    {t('common.loading')}
                   </>
                 ) : (
-                  'Sign in'
+                  t('login.signIn')
                 )}
               </button>
             </div>

@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen, activeItem, setActiveItem }) => {
   const { user } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   // Icon components for each menu item
   const getIcon = (name) => {
@@ -58,15 +60,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, activeItem, setActiveItem }) => 
   };
 
   const navigationItems = [
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'My Calls', path: '/mycalls' },
-    { name: 'Upload Call', path: '/uploadcall' },
-    { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'Dashboard', path: '/dashboard', key: 'common.dashboard' },
+    { name: 'My Calls', path: '/mycalls', key: 'common.myCalls' },
+    { name: 'Upload Call', path: '/uploadcall', key: 'common.uploadCall' },
+    { name: 'Leaderboard', path: '/leaderboard', key: 'common.leaderboard' },
     // Admin-only navigation items
     ...(user?.role?.toLowerCase() === 'admin' ? [
-      { name: 'Client Management', path: '/client-management' },
-      { name: 'S3 Monitoring', path: '/s3-monitoring' },
-      { name: 'Reports', path: '/reports' }
+      { name: 'Client Management', path: '/client-management', key: 'common.clientManagement' },
+      { name: 'S3 Monitoring', path: '/s3-monitoring', key: 'common.s3Monitoring' },
+      { name: 'Reports', path: '/reports', key: 'common.reports' }
     ] : [])
   ];
 
@@ -123,7 +125,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, activeItem, setActiveItem }) => 
                     ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
                     : 'text-gray-700 bg-transparent hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white'
                 }`}
-                title={!sidebarOpen ? item.name : ''}
+                title={!sidebarOpen ? t(item.key) : ''}
               >
                 <span className={`flex-shrink-0 ${sidebarOpen ? 'mr-3' : 'mx-auto'} transition-colors duration-200 ${
                   active ? 'text-white' : 'text-gray-700 group-hover:text-white'
@@ -131,7 +133,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, activeItem, setActiveItem }) => 
                   {getIcon(item.name)}
                 </span>
                 {sidebarOpen && (
-                  <span className="flex-1">{item.name}</span>
+                  <span className="flex-1">{t(item.key)}</span>
                 )}
               </Link>
             );

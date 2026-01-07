@@ -1,0 +1,142 @@
+{
+  "common": {
+    "dashboard": "لوحة التحكم",
+    "myCalls": "مكالماتي",
+    "uploadCall": "رفع مكالمة",
+    "leaderboard": "لوحة المتصدرين",
+    "clientManagement": "إدارة العملاء",
+    "s3Monitoring": "مراقبة S3",
+    "reports": "التقارير",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "signIn": "تسجيل الدخول",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "welcome": "مرحباً",
+    "welcomeBack": "مرحباً بعودتك",
+    "selectRole": "اختر الدور",
+    "admin": "مدير",
+    "client": "عميل",
+    "rep": "مندوب",
+    "user": "مستخدم"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "totalCalls": "إجمالي المكالمات",
+    "processedCalls": "المكالمات المعالجة",
+    "processingCalls": "المكالمات قيد المعالجة",
+    "averageScore": "متوسط النقاط",
+    "recentCalls": "المكالمات الأخيرة",
+    "noCalls": "لا توجد مكالمات بعد",
+    "viewDetails": "عرض التفاصيل",
+    "uploadMethod": "طريقة الرفع",
+    "manual": "يدوي",
+    "s3Auto": "S3 تلقائي",
+    "salesRepStats": "إحصائيات مندوب المبيعات"
+  },
+  "calls": {
+    "title": "مكالماتي",
+    "filename": "اسم الملف",
+    "status": "الحالة",
+    "score": "النقاط",
+    "sentiment": "المشاعر",
+    "date": "التاريخ",
+    "actions": "الإجراءات",
+    "processing": "قيد المعالجة",
+    "completed": "مكتمل",
+    "failed": "فشل",
+    "pending": "قيد الانتظار",
+    "noCalls": "لا توجد مكالمات",
+    "uploadDate": "تاريخ الرفع",
+    "duration": "المدة"
+  },
+  "upload": {
+    "title": "رفع مكالمة",
+    "selectFile": "اختر ملف صوتي",
+    "dragDrop": "اسحب وأفلت ملف صوتي هنا، أو انقر للاختيار",
+    "supportedFormats": "الصيغ المدعومة: MP3, WAV, M4A, AAC, OGG, FLAC",
+    "uploading": "جاري الرفع...",
+    "uploadSuccess": "تم الرفع بنجاح!",
+    "uploadError": "فشل الرفع",
+    "fileTooLarge": "الملف كبير جداً",
+    "invalidFormat": "صيغة ملف غير صحيحة"
+  },
+  "leaderboard": {
+    "title": "لوحة المتصدرين",
+    "rank": "الترتيب",
+    "name": "الاسم",
+    "score": "النقاط",
+    "calls": "المكالمات",
+    "averageScore": "متوسط النقاط"
+  },
+  "login": {
+    "title": "إنزورا AI",
+    "welcomeBack": "مرحباً بعودتك",
+    "signInToContinue": "سجل الدخول إلى حسابك للمتابعة",
+    "emailAddress": "عنوان البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "signIn": "تسجيل الدخول",
+    "backToHome": "العودة للصفحة الرئيسية",
+    "pleaseSignInUsingTab": "يرجى تسجيل الدخول باستخدام تبويب {{role}}"
+  },
+  "landing": {
+    "signIn": "تسجيل الدخول",
+    "getStartedFree": "ابدأ مجاناً",
+    "learnMore": "اعرف المزيد",
+    "transformSalesCalls": "حول مكالمات المبيعات الخاصة بك",
+    "intoWinningStrategies": "إلى استراتيجيات رابحة",
+    "description": "يحلل Enzura AI مكالمات المبيعات الخاصة بك، ويستخرج رؤى قابلة للتنفيذ، ويساعد فريقك على تقديم محادثات عالية الأداء ومتسقة تغلق الصفقات."
+  },
+  "callDetail": {
+    "title": "تفاصيل المكالمة",
+    "transcript": "النص",
+    "insights": "الرؤى",
+    "score": "النقاط",
+    "sentiment": "المشاعر",
+    "duration": "المدة",
+    "uploadDate": "تاريخ الرفع",
+    "status": "الحالة"
+  },
+  "clientManagement": {
+    "title": "إدارة العملاء",
+    "addClient": "إضافة عميل",
+    "editClient": "تعديل العميل",
+    "clientName": "اسم العميل",
+    "bucketName": "اسم الحاوية",
+    "actions": "الإجراءات"
+  },
+  "s3Monitoring": {
+    "title": "مراقبة S3",
+    "status": "الحالة",
+    "lastChecked": "آخر فحص",
+    "enabled": "مفعل",
+    "disabled": "معطل"
+  },
+  "reports": {
+    "title": "التقارير",
+    "generateReport": "إنشاء تقرير",
+    "dateRange": "نطاق التاريخ",
+    "from": "من",
+    "to": "إلى"
+  },
+  "errors": {
+    "generic": "حدث خطأ",
+    "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+    "unauthorized": "غير مصرح. يرجى تسجيل الدخول مرة أخرى.",
+    "notFound": "المورد غير موجود",
+    "serverError": "خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً."
+  }
+}
+

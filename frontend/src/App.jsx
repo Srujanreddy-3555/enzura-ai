@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import './i18n/config'; // Initialize i18n
 
 // OPTIMIZED: Lazy load all components for code splitting (smaller initial bundle!)
 const LandingPage = lazy(() => import('./components/LandingPage'));

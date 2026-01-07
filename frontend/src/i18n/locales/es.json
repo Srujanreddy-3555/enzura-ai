@@ -1,0 +1,142 @@
+{
+  "common": {
+    "dashboard": "Panel",
+    "myCalls": "Mis Llamadas",
+    "uploadCall": "Subir Llamada",
+    "leaderboard": "Clasificación",
+    "clientManagement": "Gestión de Clientes",
+    "s3Monitoring": "Monitoreo S3",
+    "reports": "Informes",
+    "logout": "Cerrar Sesión",
+    "login": "Iniciar Sesión",
+    "signIn": "Iniciar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "welcome": "Bienvenido",
+    "welcomeBack": "Bienvenido de nuevo",
+    "selectRole": "SELECCIONAR ROL",
+    "admin": "Administrador",
+    "client": "Cliente",
+    "rep": "Representante",
+    "user": "Usuario"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "totalCalls": "Total de Llamadas",
+    "processedCalls": "Llamadas Procesadas",
+    "processingCalls": "Llamadas en Proceso",
+    "averageScore": "Puntuación Promedio",
+    "recentCalls": "Llamadas Recientes",
+    "noCalls": "Aún no hay llamadas",
+    "viewDetails": "Ver Detalles",
+    "uploadMethod": "Método de Carga",
+    "manual": "Manual",
+    "s3Auto": "S3 Automático",
+    "salesRepStats": "Estadísticas del Representante"
+  },
+  "calls": {
+    "title": "Mis Llamadas",
+    "filename": "Nombre del Archivo",
+    "status": "Estado",
+    "score": "Puntuación",
+    "sentiment": "Sentimiento",
+    "date": "Fecha",
+    "actions": "Acciones",
+    "processing": "Procesando",
+    "completed": "Completado",
+    "failed": "Fallido",
+    "pending": "Pendiente",
+    "noCalls": "No se encontraron llamadas",
+    "uploadDate": "Fecha de Carga",
+    "duration": "Duración"
+  },
+  "upload": {
+    "title": "Subir Llamada",
+    "selectFile": "Seleccionar Archivo de Audio",
+    "dragDrop": "Arrastra y suelta un archivo de audio aquí, o haz clic para seleccionar",
+    "supportedFormats": "Formatos soportados: MP3, WAV, M4A, AAC, OGG, FLAC",
+    "uploading": "Subiendo...",
+    "uploadSuccess": "¡Carga exitosa!",
+    "uploadError": "Error al cargar",
+    "fileTooLarge": "El archivo es demasiado grande",
+    "invalidFormat": "Formato de archivo inválido"
+  },
+  "leaderboard": {
+    "title": "Clasificación",
+    "rank": "Rango",
+    "name": "Nombre",
+    "score": "Puntuación",
+    "calls": "Llamadas",
+    "averageScore": "Puntuación Promedio"
+  },
+  "login": {
+    "title": "Enzura AI",
+    "welcomeBack": "Bienvenido de nuevo",
+    "signInToContinue": "Inicia sesión en tu cuenta para continuar",
+    "emailAddress": "DIRECCIÓN DE CORREO ELECTRÓNICO",
+    "password": "CONTRASEÑA",
+    "signIn": "Iniciar Sesión",
+    "backToHome": "Volver al Inicio",
+    "pleaseSignInUsingTab": "Por favor inicia sesión usando la pestaña {{role}}"
+  },
+  "landing": {
+    "signIn": "Iniciar Sesión",
+    "getStartedFree": "Comenzar Gratis",
+    "learnMore": "Saber Más",
+    "transformSalesCalls": "Transforma Tus Llamadas de Ventas",
+    "intoWinningStrategies": "En Estrategias Ganadoras",
+    "description": "Enzura AI analiza tus llamadas de ventas, extrae información accionable y ayuda a tu equipo a entregar conversaciones consistentes y de alto rendimiento que cierran tratos."
+  },
+  "callDetail": {
+    "title": "Detalles de la Llamada",
+    "transcript": "Transcripción",
+    "insights": "Perspectivas",
+    "score": "Puntuación",
+    "sentiment": "Sentimiento",
+    "duration": "Duración",
+    "uploadDate": "Fecha de Carga",
+    "status": "Estado"
+  },
+  "clientManagement": {
+    "title": "Gestión de Clientes",
+    "addClient": "Agregar Cliente",
+    "editClient": "Editar Cliente",
+    "clientName": "Nombre del Cliente",
+    "bucketName": "Nombre del Cubo",
+    "actions": "Acciones"
+  },
+  "s3Monitoring": {
+    "title": "Monitoreo S3",
+    "status": "Estado",
+    "lastChecked": "Última Verificación",
+    "enabled": "Habilitado",
+    "disabled": "Deshabilitado"
+  },
+  "reports": {
+    "title": "Informes",
+    "generateReport": "Generar Informe",
+    "dateRange": "Rango de Fechas",
+    "from": "Desde",
+    "to": "Hasta"
+  },
+  "errors": {
+    "generic": "Ocurrió un error",
+    "networkError": "Error de red. Por favor verifica tu conexión.",
+    "unauthorized": "No autorizado. Por favor inicia sesión nuevamente.",
+    "notFound": "Recurso no encontrado",
+    "serverError": "Error del servidor. Por favor intenta de nuevo más tarde."
+  }
+}
+
