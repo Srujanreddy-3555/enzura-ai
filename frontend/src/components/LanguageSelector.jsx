@@ -64,14 +64,17 @@ const LanguageSelector = () => {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative z-50" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-2 bg-white rounded-lg border border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        className="flex items-center space-x-2 px-3 py-2 bg-white rounded-lg border-2 border-gray-300 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
         title="Select Language"
+        aria-label="Select Language"
       >
-        <span className="text-xl">{currentLanguage.flag}</span>
-        <span className="text-sm font-medium text-gray-700 hidden sm:inline">
+        <span className="text-xl" role="img" aria-label={currentLanguage.name}>
+          {currentLanguage.flag}
+        </span>
+        <span className="text-sm font-semibold text-gray-700">
           {currentLanguage.code.toUpperCase()}
         </span>
         <svg
