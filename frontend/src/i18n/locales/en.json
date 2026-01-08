@@ -31,7 +31,6 @@
     "client": "Client",
     "rep": "Rep",
     "user": "User",
-    "logout": "Logout",
     "loggedInAs": "Logged in as"
   },
   "dashboard": {
