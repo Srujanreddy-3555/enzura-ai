@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import Sidebar from './Sidebar';
 import UserHeader from './UserHeader';
@@ -16,6 +17,7 @@ const UploadCall = () => {
   const [supportedFormats, setSupportedFormats] = useState(null);
   const [currentStep, setCurrentStep] = useState('');
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Mobile navigation items (for mobile menu only)
   const navigationItems = [
@@ -110,7 +112,7 @@ const UploadCall = () => {
 
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
-      setError('Please select at least one file first');
+      setError(t('upload.pleaseSelectFile'));
       return;
     }
 
@@ -118,20 +120,20 @@ const UploadCall = () => {
     setUploadProgress({});
     setUploadComplete(false);
     setError('');
-    setCurrentStep('Preparing files...');
+    setCurrentStep(t('upload.preparingFiles'));
 
     try {
       // Step 1: Validate files
-      setCurrentStep('Validating files...');
+      setCurrentStep(t('upload.validatingFiles'));
       await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for UX
 
       // Step 2: Upload to S3
-      setCurrentStep('Uploading to cloud storage...');
+      setCurrentStep(t('upload.uploadingToCloud'));
       // Upload files (English only)
       const uploadResults = await apiService.uploadMultipleFiles(selectedFiles);
       
       // Step 3: Process results
-      setCurrentStep('Processing upload results...');
+      setCurrentStep(t('upload.processingUploadResults'));
       await new Promise(resolve => setTimeout(resolve, 300));
 
       let successfulUploads = [];
@@ -165,7 +167,7 @@ const UploadCall = () => {
 
       // Step 4: Start transcription and analysis
       if (successfulUploads.length > 0) {
-        setCurrentStep('Starting transcription and analysis...');
+        setCurrentStep(t('upload.startingTranscription'));
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Update steps for each successful upload
@@ -173,7 +175,7 @@ const UploadCall = () => {
       }
 
       // Step 5: Show completion
-      setCurrentStep('Upload complete! Processing in background...');
+      setCurrentStep(t('upload.uploadComplete'));
       setUploading(false);
       setUploadComplete(true);
       
@@ -182,7 +184,7 @@ const UploadCall = () => {
         const errorMessages = failedUploads.map(error => 
           `${error.filename}: ${error.error}`
         );
-        setError(`Some files failed to upload:\n${errorMessages.join('\n')}`);
+        setError(`${t('upload.someFilesFailed')}:\n${errorMessages.join('\n')}`);
       }
       
       // Redirect after 3 seconds
@@ -192,8 +194,8 @@ const UploadCall = () => {
 
     } catch (error) {
       console.error('Upload failed:', error);
-      setCurrentStep('Upload failed');
-      setError(`Upload failed: ${error.message}`);
+      setCurrentStep(t('upload.uploadFailed'));
+      setError(`${t('upload.uploadError')}: ${error.message}`);
       setUploading(false);
     }
   };
@@ -224,9 +226,9 @@ const UploadCall = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
+        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-semibold text-gray-900">Upload Call</h1>
+          <h1 className="text-lg font-semibold text-gray-900">{t('upload.title')}</h1>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
@@ -278,9 +280,9 @@ const UploadCall = () => {
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Page Header */}
                 <div className="mb-8">
-                  <h1 className="text-2xl font-bold text-gray-900">Upload Call</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{t('upload.title')}</h1>
                   <p className="mt-1 text-sm text-gray-500">
-                    Upload your call recordings for analysis and insights.
+                    {t('upload.description')}
                   </p>
                 </div>
 
@@ -294,8 +296,8 @@ const UploadCall = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6H16a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                       </div>
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Call Recordings</h2>
-                      <p className="text-gray-600">Drag and drop your audio files or click to browse</p>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('upload.uploadCallRecordings')}</h2>
+                      <p className="text-gray-600">{t('upload.dragAndDrop')}</p>
                     </div>
 
                     {/* File Input Section */}
@@ -327,7 +329,7 @@ const UploadCall = () => {
                           <div className="space-y-2">
                             <div className="flex items-center justify-center text-sm text-gray-600">
                               <label htmlFor="file-input" className="relative cursor-pointer bg-white rounded-lg font-semibold text-indigo-600 hover:text-indigo-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 px-4 py-2 border border-indigo-200 hover:border-indigo-300 transition-all duration-200">
-                                <span>Choose Files</span>
+                                <span>{t('upload.chooseFiles')}</span>
                                 <input
                                   id="file-input"
                                   name="file-input"
@@ -342,17 +344,17 @@ const UploadCall = () => {
                                   multiple
                                 />
                               </label>
-                              <span className="mx-3 text-gray-400">or</span>
-                              <span className="text-gray-500">drag and drop</span>
+                              <span className="mx-3 text-gray-400">{t('upload.or')}</span>
+                              <span className="text-gray-500">{t('upload.dragAndDropText')}</span>
                             </div>
                             <p className="text-sm text-gray-500">
-                              Supports {supportedFormats 
+                              {t('upload.supports')} {supportedFormats 
                                 ? supportedFormats.supported_formats.map(f => f.extension.toUpperCase().slice(1)).join(', ')
                                 : 'MP3, WAV, M4A, AAC, OGG, FLAC'
-                              } • Max {supportedFormats 
+                              } • {t('upload.max')} {supportedFormats 
                                 ? supportedFormats.max_file_size_mb
                                 : 100
-                              }MB per file
+                              }{t('upload.mbPerFile')}
                             </p>
                           </div>
                         </div>
@@ -371,7 +373,7 @@ const UploadCall = () => {
                             </div>
                           </div>
                           <div className="ml-4">
-                            <h3 className="text-sm font-semibold text-red-800">Upload Error</h3>
+                            <h3 className="text-sm font-semibold text-red-800">{t('upload.uploadErrorTitle')}</h3>
                             <p className="text-sm text-red-600 whitespace-pre-line mt-1">{error}</p>
                           </div>
                         </div>
@@ -382,9 +384,9 @@ const UploadCall = () => {
                     {selectedFiles.length > 0 && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-lg font-semibold text-gray-900">Selected Files</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">{t('upload.selectedFiles')}</h3>
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                            {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''}
+                            {selectedFiles.length} {selectedFiles.length > 1 ? t('upload.files') : t('upload.file')}
                           </span>
                         </div>
                         
@@ -407,7 +409,7 @@ const UploadCall = () => {
                                         {(file.size / (1024 * 1024)).toFixed(2)} MB
                                       </p>
                                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                        Ready
+                                        {t('upload.ready')}
                                       </span>
                                     </div>
                                   </div>
@@ -417,7 +419,7 @@ const UploadCall = () => {
                                   <button
                                     onClick={() => removeFile(file.name)}
                                     className="flex-shrink-0 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
-                                    title="Remove file"
+                                    title={t('upload.removeFile')}
                                   >
                                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -430,7 +432,7 @@ const UploadCall = () => {
                               {uploading && uploadProgress[file.name] !== undefined && (
                                 <div className="mt-4">
                                   <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-gray-600 font-medium">Uploading...</span>
+                                    <span className="text-gray-600 font-medium">{t('upload.uploading')}</span>
                                     <span className="text-gray-600 font-semibold">{Math.round(uploadProgress[file.name] || 0)}%</span>
                                   </div>
                                   <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
@@ -460,7 +462,7 @@ const UploadCall = () => {
                             </div>
                           </div>
                           <div className="ml-4">
-                            <h3 className="text-lg font-semibold text-blue-800">Processing Your Call</h3>
+                            <h3 className="text-lg font-semibold text-blue-800">{t('upload.processingYourCall')}</h3>
                             <p className="text-sm text-blue-600 mt-1">{currentStep}</p>
                           </div>
                         </div>
@@ -476,8 +478,8 @@ const UploadCall = () => {
                               </div>
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">File Validation</p>
-                              <p className="text-xs text-gray-500">Checking file format and size</p>
+                              <p className="text-sm font-medium text-gray-900">{t('upload.fileValidation')}</p>
+                              <p className="text-xs text-gray-500">{t('upload.checkingFileFormat')}</p>
                             </div>
                           </div>
 
@@ -501,8 +503,8 @@ const UploadCall = () => {
                               </div>
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">S3 Storage Upload</p>
-                              <p className="text-xs text-gray-500">Securely storing your audio file</p>
+                              <p className="text-sm font-medium text-gray-900">{t('upload.s3StorageUpload')}</p>
+                              <p className="text-xs text-gray-500">{t('upload.securelyStoring')}</p>
                             </div>
                           </div>
 
@@ -526,8 +528,8 @@ const UploadCall = () => {
                               </div>
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">Transcription & Analysis</p>
-                              <p className="text-xs text-gray-500">Converting speech to text and extracting insights</p>
+                              <p className="text-sm font-medium text-gray-900">{t('upload.transcriptionAnalysis')}</p>
+                              <p className="text-xs text-gray-500">{t('upload.convertingSpeech')}</p>
                             </div>
                           </div>
 
@@ -551,8 +553,8 @@ const UploadCall = () => {
                               </div>
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">Background Processing</p>
-                              <p className="text-xs text-gray-500">Generating detailed analytics and scores</p>
+                              <p className="text-sm font-medium text-gray-900">{t('upload.backgroundProcessing')}</p>
+                              <p className="text-xs text-gray-500">{t('upload.generatingAnalytics')}</p>
                             </div>
                           </div>
                         </div>
@@ -560,7 +562,7 @@ const UploadCall = () => {
                         {/* Progress Bar */}
                         <div className="mt-6">
                           <div className="flex justify-between text-sm mb-2">
-                            <span className="text-gray-600 font-medium">Overall Progress</span>
+                            <span className="text-gray-600 font-medium">{t('upload.overallProgress')}</span>
                             <span className="text-gray-600 font-semibold">
                               {currentStep.includes('Upload complete') ? '100%' : 
                                currentStep.includes('Starting transcription') ? '75%' :
@@ -593,9 +595,9 @@ const UploadCall = () => {
                             </div>
                           </div>
                           <div className="ml-4">
-                            <h3 className="text-lg font-semibold text-green-800">Upload Successful!</h3>
+                            <h3 className="text-lg font-semibold text-green-800">{t('upload.uploadSuccessful')}</h3>
                             <p className="text-sm text-green-600 mt-1">
-                              Your calls have been uploaded to S3 and are being processed. Transcription and analysis will continue in the background. Redirecting to My Calls...
+                              {t('upload.uploadedToS3')}
                             </p>
                           </div>
                         </div>
@@ -611,7 +613,7 @@ const UploadCall = () => {
                         <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        Back to My Calls
+                        {t('upload.backToMyCalls')}
                       </Link>
                       
                       <div className="flex space-x-3">
@@ -623,7 +625,7 @@ const UploadCall = () => {
                             <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
-                            Upload Another
+                            {t('upload.uploadAnother')}
                           </button>
                         )}
                         
@@ -638,14 +640,19 @@ const UploadCall = () => {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
-                              Uploading...
+                              {t('upload.uploading')}
                             </>
                           ) : (
                             <>
                               <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6H16a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                               </svg>
-                              Upload {selectedFiles.length > 0 ? `${selectedFiles.length} File${selectedFiles.length > 1 ? 's' : ''}` : 'Call'}
+                              {selectedFiles.length > 0 
+                                ? selectedFiles.length > 1 
+                                  ? t('upload.uploadButtonPlural', { count: selectedFiles.length })
+                                  : t('upload.uploadButton', { count: selectedFiles.length })
+                                : t('upload.uploadButtonSingle')
+                              }
                             </>
                           )}
                         </button>
@@ -665,13 +672,13 @@ const UploadCall = () => {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-blue-900 mb-4">Upload Guidelines</h3>
+                      <h3 className="text-xl font-semibold text-blue-900 mb-4">{t('upload.uploadGuidelines')}</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <div className="flex items-center space-x-3">
                             <div className="h-2 w-2 rounded-full bg-blue-500"></div>
                             <span className="text-sm font-medium text-blue-800">
-                              Supported formats: {supportedFormats 
+                              {t('upload.supportedFormats')}: {supportedFormats 
                                 ? supportedFormats.supported_formats.map(f => f.extension.toUpperCase().slice(1)).join(', ')
                                 : 'MP3, WAV, M4A, AAC, OGG, FLAC'
                               }
@@ -680,30 +687,30 @@ const UploadCall = () => {
                           <div className="flex items-center space-x-3">
                             <div className="h-2 w-2 rounded-full bg-blue-500"></div>
                             <span className="text-sm font-medium text-blue-800">
-                              Maximum file size: {supportedFormats 
+                              {t('upload.max')} {t('upload.fileTooLarge')}: {supportedFormats 
                                 ? supportedFormats.max_file_size_mb
                                 : 100
-                              }MB per file
+                              }{t('upload.mbPerFile')}
                             </span>
                           </div>
                           <div className="flex items-center space-x-3">
                             <div className="h-2 w-2 rounded-full bg-blue-500"></div>
                             <span className="text-sm font-medium text-blue-800">
-                              Maximum {supportedFormats 
+                              {t('upload.maximumFiles', { count: supportedFormats 
                                 ? supportedFormats.max_files_per_upload
                                 : 10
-                              } files can be uploaded simultaneously
+                              })}
                             </span>
                           </div>
                         </div>
                         <div className="space-y-3">
                           <div className="flex items-center space-x-3">
                             <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                            <span className="text-sm font-medium text-blue-800">Clear audio quality recommended for best analysis</span>
+                            <span className="text-sm font-medium text-blue-800">{t('upload.clearAudioQuality')}</span>
                           </div>
                           <div className="flex items-center space-x-3">
                             <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                            <span className="text-sm font-medium text-blue-800">Processing typically takes 2-3 minutes per file</span>
+                            <span className="text-sm font-medium text-blue-800">{t('upload.processingTime')}</span>
                           </div>
                         </div>
                       </div>

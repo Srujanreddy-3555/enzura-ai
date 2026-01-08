@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import { SkeletonTableRow } from './SkeletonLoader';
 import ConfirmDialog from './ConfirmDialog';
@@ -19,6 +20,7 @@ const MyCalls = () => {
   const [deletingCall, setDeletingCall] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, onConfirm: null, title: '', message: '' });
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   // OPTIMIZED: Server-side pagination state for large call lists (200+ calls)
   const [currentPage, setCurrentPage] = useState(1);
@@ -375,10 +377,10 @@ const MyCalls = () => {
   const handleDeleteCall = (callId) => {
     setConfirmDialog({
       isOpen: true,
-      title: 'Delete Call',
-      message: 'Are you sure you want to delete this call? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
+      title: t('calls.deleteCall'),
+      message: t('calls.confirmDelete'),
+      confirmText: t('common.delete'),
+      cancelText: t('common.cancel'),
       onConfirm: async () => {
         try {
           setDeletingCall(callId);
@@ -397,7 +399,7 @@ const MyCalls = () => {
             return newInsights;
           });
           
-          setSuccess('Call deleted successfully!');
+          setSuccess(t('calls.callDeleted'));
           
           // CRITICAL: Immediately refresh to ensure ALL users see the change
           // This ensures deletes are visible everywhere (admin, client, rep)
@@ -447,7 +449,7 @@ const MyCalls = () => {
             errorMessage = err.detail;
           }
           
-          setError(errorMessage);
+          setError(errorMessage || t('calls.failedToDelete'));
         } finally {
           setDeletingCall(null);
         }
@@ -458,10 +460,10 @@ const MyCalls = () => {
   const handleDeleteAllCalls = () => {
     setConfirmDialog({
       isOpen: true,
-      title: 'Delete All Calls',
-      message: `Are you sure you want to delete ALL ${totalCalls} calls? This action cannot be undone!`,
-      confirmText: 'Delete All',
-      cancelText: 'Cancel',
+      title: t('calls.deleteAllCalls'),
+      message: t('calls.confirmDeleteAll', { count: totalCalls }),
+      confirmText: t('calls.deleteAllButton'),
+      cancelText: t('common.cancel'),
       onConfirm: async () => {
         try {
           setLoading(true);
@@ -487,9 +489,9 @@ const MyCalls = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
+        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-semibold text-gray-900">My Calls</h1>
+          <h1 className="text-lg font-semibold text-gray-900">{t('calls.title')}</h1>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
@@ -541,9 +543,9 @@ const MyCalls = () => {
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Page Header */}
                 <div className="mb-8">
-                  <h1 className="text-2xl font-bold text-gray-900">My Calls</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{t('calls.title')}</h1>
                   <p className="mt-1 text-sm text-gray-500">
-                    View and manage all your call recordings and analytics.
+                    {t('calls.description')}
                   </p>
                 </div>
 
@@ -553,7 +555,7 @@ const MyCalls = () => {
                     {/* Search Box */}
                     <div className="flex-1">
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Search Calls
+                        {t('calls.searchCalls')}
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -563,7 +565,7 @@ const MyCalls = () => {
                         </div>
                         <input
                           type="text"
-                          placeholder="Search by Call ID or Filename..."
+                          placeholder={t('calls.searchPlaceholder')}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-sm font-medium"
@@ -574,7 +576,7 @@ const MyCalls = () => {
                     {/* Status Filter */}
                     <div className="sm:w-56">
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Filter by Status
+                        {t('calls.filterByStatus')}
                       </label>
                       <div className="relative">
                         <select
@@ -582,10 +584,10 @@ const MyCalls = () => {
                           onChange={(e) => setStatusFilter(e.target.value)}
                           className="block w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
                         >
-                          <option value="All">All Status</option>
-                          <option value="PROCESSED">Processed</option>
-                          <option value="PROCESSING">Processing</option>
-                          <option value="FAILED">Failed</option>
+                          <option value="All">{t('calls.allStatus')}</option>
+                          <option value="PROCESSED">{t('calls.completed')}</option>
+                          <option value="PROCESSING">{t('calls.processing')}</option>
+                          <option value="FAILED">{t('calls.failed')}</option>
                         </select>
                         <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                           <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -606,7 +608,7 @@ const MyCalls = () => {
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
-                          <span>Delete All</span>
+                          <span>{t('calls.deleteAll')}</span>
                         </button>
                       </div>
                     )}
@@ -621,7 +623,7 @@ const MyCalls = () => {
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead className="bg-gray-50">
                             <tr>
-                              {['Call ID', 'Filename', 'Status', 'Score', 'Sentiment', 'Duration', 'Date', 'Actions'].map((header) => (
+                              {[t('dashboard.callId'), t('calls.filename'), t('calls.status'), t('calls.score'), t('calls.sentiment'), t('calls.duration'), t('dashboard.date'), t('calls.actions')].map((header) => (
                                 <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                   <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
                                 </th>
@@ -675,36 +677,36 @@ const MyCalls = () => {
                 {!loading && !error && (
                   <div className="bg-white shadow-xl rounded-2xl border border-gray-200 overflow-hidden">
                     <div className="px-6 py-5 bg-gradient-to-r from-purple-50 to-blue-50 border-b border-gray-200">
-                      <h2 className="text-lg font-bold text-gray-900">Call Records</h2>
-                      <p className="text-sm text-gray-600 mt-1">{totalCalls} {totalCalls === 1 ? 'call' : 'calls'} found</p>
+                      <h2 className="text-lg font-bold text-gray-900">{t('calls.callRecords')}</h2>
+                      <p className="text-sm text-gray-600 mt-1">{totalCalls} {totalCalls === 1 ? t('calls.call') : t('calls.callsFound')}</p>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                           <tr>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                              Call ID
+                              {t('dashboard.callId')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                              Filename
+                              {t('calls.filename')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                              Upload Date
+                              {t('calls.uploadDate')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                              Duration
+                              {t('calls.duration')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                              Score
+                              {t('calls.score')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                              Sentiment
+                              {t('calls.sentiment')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                              Status
+                              {t('calls.status')}
                             </th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                              Actions
+                              {t('calls.actions')}
                             </th>
                           </tr>
                         </thead>
@@ -798,7 +800,7 @@ const MyCalls = () => {
                                       handleViewDetails(call.id);
                                     }}
                                     className="p-2 text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 hover:text-indigo-700 transition-all duration-200 transform hover:scale-110"
-                                    title="View Details"
+                                    title={t('calls.viewDetails')}
                                   >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -816,7 +818,7 @@ const MyCalls = () => {
                                         ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
                                         : 'text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700'
                                     }`}
-                                    title="Delete Call"
+                                    title={t('calls.deleteCallButton')}
                                   >
                                     {deletingCall === call.id ? (
                                       <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -841,7 +843,7 @@ const MyCalls = () => {
                     {totalPages > 1 && (
                       <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
                         <div className="text-sm text-gray-600">
-                          Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalCalls)} of {totalCalls} calls
+                          {t('calls.showing')} {(currentPage - 1) * itemsPerPage + 1} {t('calls.to')} {Math.min(currentPage * itemsPerPage, totalCalls)} {t('calls.of')} {totalCalls} {t('calls.callsFound')}
                         </div>
                         <div className="flex items-center space-x-2">
                           <button
@@ -849,7 +851,7 @@ const MyCalls = () => {
                             disabled={currentPage === 1}
                             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
-                            Previous
+                            {t('calls.previous')}
                           </button>
                           <div className="flex items-center space-x-1">
                             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -883,7 +885,7 @@ const MyCalls = () => {
                             disabled={currentPage === totalPages}
                             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
-                            Next
+                            {t('calls.next')}
                           </button>
                         </div>
                       </div>
@@ -897,8 +899,8 @@ const MyCalls = () => {
                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No calls found</h3>
-                    <p className="mt-1 text-sm text-gray-500">Get started by uploading your first call recording.</p>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">{t('calls.noCalls')}</h3>
+                    <p className="mt-1 text-sm text-gray-500">{t('calls.getStarted')}</p>
                     <div className="mt-6">
                       <Link
                         to="/uploadcall"
@@ -907,7 +909,7 @@ const MyCalls = () => {
                         <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6H16a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
-                        Upload Call
+                        {t('common.uploadCall')}
                       </Link>
                     </div>
                   </div>

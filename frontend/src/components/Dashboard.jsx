@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import { SkeletonCard, SkeletonTableRow } from './SkeletonLoader';
 import SuccessToast from './SuccessToast';
@@ -24,6 +25,7 @@ const Dashboard = () => {
   // OPTIMIZED: No loading state - show UI immediately!
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [showToast, setShowToast] = useState(false);
   const [toastUsername, setToastUsername] = useState('');
 
@@ -192,7 +194,7 @@ const Dashboard = () => {
     <>
       {showToast && (
         <SuccessToast
-          message="Welcome back"
+          message={t('dashboard.welcomeBack')}
           username={toastUsername}
           onClose={() => setShowToast(false)}
           duration={3000}
@@ -200,14 +202,14 @@ const Dashboard = () => {
       )}
       <div className="min-h-screen bg-gray-50">
         {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
+        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-semibold text-gray-900">Dashboard</h1>
+          <h1 className="text-lg font-semibold text-gray-900">{t('dashboard.title')}</h1>
           <div className="flex items-center space-x-2">
             <button
               onClick={handleLogout}
               className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500"
-              title="Logout"
+              title={t('common.logout')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -247,13 +249,13 @@ const Dashboard = () => {
               <>
                 <div className="border-t border-gray-700 my-2"></div>
                 <div className="px-3 py-2 text-xs text-gray-400">
-                  Logged in as {user.name}
+                  {t('common.loggedInAs')} {user.name}
                 </div>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
                 >
-                  Logout
+                  {t('common.logout')}
                 </button>
               </>
             )}
@@ -286,25 +288,25 @@ const Dashboard = () => {
                       {/* Welcome Message with Gradient Name */}
                       <div className="flex items-center">
                         <h1 className="text-4xl font-bold text-black" style={{ fontFamily: 'serif' }}>
-                          Welcome back,{' '}
+                          {t('dashboard.welcomeBack')},{' '}
                           <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                            {user?.name || 'User'}!
+                            {user?.name || t('common.user')}!
                           </span>
                         </h1>
                         <span className="ml-3 text-4xl">👋</span>
                       </div>
                       <p className="mt-2 text-base text-gray-500 font-normal">
-                        Here's your call analytics overview
+                        {t('dashboard.analyticsOverview')}
                       </p>
                       {/* Multi-tenant info */}
                       {dashboardData.clientInfo && (
                         <div className="mt-3 flex items-center space-x-2">
                           <div className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
-                            Client: {dashboardData.clientInfo.name}
+                            {t('dashboard.client')}: {dashboardData.clientInfo.name}
                           </div>
                           {user?.role === 'admin' && (
                             <div className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
-                              Admin Access
+                              {t('dashboard.adminAccess')}
                             </div>
                           )}
                         </div>
@@ -359,9 +361,9 @@ const Dashboard = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                         </svg>
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">You haven't uploaded any calls yet</h3>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('dashboard.noCallsYet')}</h3>
                       <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
-                        Start by uploading your first call recording to see analytics, insights, and performance metrics.
+                        {t('dashboard.startByUploading')}
                       </p>
                       <Link
                         to="/uploadcall"
@@ -370,7 +372,7 @@ const Dashboard = () => {
                         <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
-                        Upload Your First Call
+                        {t('dashboard.uploadYourFirstCall')}
                       </Link>
                     </div>
                   </div>
@@ -384,7 +386,7 @@ const Dashboard = () => {
                       {/* Total Calls Card */}
                       <div className="bg-white border border-gray-200 rounded-2xl p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Total Calls</h3>
+                          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{t('dashboard.totalCalls')}</h3>
                           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                             <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -401,14 +403,14 @@ const Dashboard = () => {
                             </svg>
                           </div>
                           <span className="text-sm font-semibold text-green-600">+12%</span>
-                          <span className="text-xs text-gray-500">from last month</span>
+                          <span className="text-xs text-gray-500">{t('dashboard.fromLastMonth')}</span>
                         </div>
                       </div>
 
                       {/* Processed Card */}
                       <div className="bg-white border border-purple-200 rounded-2xl p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Processed</h3>
+                          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{t('dashboard.processedCalls')}</h3>
                           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                             <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -432,7 +434,7 @@ const Dashboard = () => {
                       {/* Processing Card */}
                       <div className="bg-white border border-gray-200 rounded-2xl p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Processing</h3>
+                          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{t('dashboard.processingCalls')}</h3>
                           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                             <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -456,7 +458,7 @@ const Dashboard = () => {
                       {/* Average Score Card */}
                       <div className="bg-white border border-gray-200 rounded-2xl p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Avg Score</h3>
+                          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">{t('dashboard.averageScore')}</h3>
                           <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                             <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -485,20 +487,20 @@ const Dashboard = () => {
                         <div className="bg-white shadow rounded-xl">
                           <div className="px-4 py-5 sm:p-6">
                             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                              Upload Methods
+                              {t('dashboard.uploadMethods')}
                             </h3>
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center">
                                   <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                                  <span className="text-sm font-medium text-gray-700">Manual Upload</span>
+                                  <span className="text-sm font-medium text-gray-700">{t('dashboard.manualUpload')}</span>
                                 </div>
                                 <span className="text-sm font-bold text-gray-900">{dashboardData.uploadMethodStats.manual}</span>
                               </div>
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center">
                                   <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                                  <span className="text-sm font-medium text-gray-700">S3 Auto Upload</span>
+                                  <span className="text-sm font-medium text-gray-700">{t('dashboard.s3AutoUpload')}</span>
                                 </div>
                                 <span className="text-sm font-bold text-gray-900">{dashboardData.uploadMethodStats.s3_auto}</span>
                               </div>
@@ -511,7 +513,7 @@ const Dashboard = () => {
                           <div className="bg-white shadow rounded-xl">
                             <div className="px-4 py-5 sm:p-6">
                               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                                Top Sales Reps
+                                {t('dashboard.topSalesReps')}
                               </h3>
                               <div className="space-y-3">
                                 {dashboardData.salesRepStats.slice(0, 3).map((rep, index) => (
@@ -525,8 +527,8 @@ const Dashboard = () => {
                                       <span className="text-sm font-medium text-gray-700">{rep.name}</span>
                                     </div>
                                     <div className="text-right">
-                                      <div className="text-sm font-bold text-gray-900">{rep.callCount} calls</div>
-                                      <div className="text-xs text-gray-500">{rep.avgScore}% avg</div>
+                                      <div className="text-sm font-bold text-gray-900">{rep.callCount} {t('dashboard.calls')}</div>
+                                      <div className="text-xs text-gray-500">{rep.avgScore}% {t('dashboard.avg')}</div>
                                     </div>
                                   </div>
                                 ))}
@@ -542,13 +544,13 @@ const Dashboard = () => {
                       <div className="px-4 py-5 sm:p-6">
                         <div className="flex items-center justify-between mb-6">
                           <h3 className="text-lg leading-6 font-medium text-gray-900">
-                            Recent Calls
+                            {t('dashboard.recentCalls')}
                           </h3>
                           <Link
                             to="/mycalls"
                             className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                           >
-                            View all →
+                            {t('dashboard.viewAll')} →
                           </Link>
                         </div>
                         
@@ -558,25 +560,25 @@ const Dashboard = () => {
                               <thead className="bg-gray-50">
                                 <tr>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Call ID
+                                    {t('dashboard.callId')}
                                   </th>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Filename
+                                    {t('calls.filename')}
                                   </th>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Sales Rep
+                                    {t('dashboard.salesRep')}
                                   </th>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Upload Method
+                                    {t('dashboard.uploadMethodCol')}
                                   </th>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
+                                    {t('calls.status')}
                                   </th>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Score
+                                    {t('calls.score')}
                                   </th>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date
+                                    {t('dashboard.date')}
                                   </th>
                                 </tr>
                               </thead>
@@ -596,7 +598,7 @@ const Dashboard = () => {
                                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                         call.upload_method === 'manual' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                                       }`}>
-                                        {call.upload_method === 'manual' ? 'Manual' : 'S3 Auto'}
+                                        {call.upload_method === 'manual' ? t('dashboard.manual') : t('dashboard.s3Auto')}
                                       </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -621,7 +623,7 @@ const Dashboard = () => {
                           </div>
                         ) : (
                           <div className="text-center py-8">
-                            <p className="text-gray-500">No recent calls to display.</p>
+                            <p className="text-gray-500">{t('dashboard.noRecentCalls')}</p>
                           </div>
                         )}
                       </div>

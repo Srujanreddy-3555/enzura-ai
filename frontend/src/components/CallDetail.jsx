@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import apiService from '../services/api';
 import { SkeletonCallDetailCard } from './SkeletonLoader';
 import Sidebar from './Sidebar';
@@ -32,6 +33,7 @@ const CallDetail = () => {
   const [audioUrl, setAudioUrl] = useState(null);
   const [isLoadingPlay, setIsLoadingPlay] = useState(false);
   const [isLoadingDownload, setIsLoadingDownload] = useState(false);
+  const { t } = useTranslation();
 
   // Mobile navigation items (for mobile menu only)
   const navigationItems = [
@@ -286,8 +288,8 @@ const CallDetail = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
         </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-3">Oops! Something went wrong</h2>
-          <p className="text-slate-600 mb-6">{error || 'Call not found'}</p>
+          <h2 className="text-2xl font-bold text-slate-900 mb-3">{t('callDetail.somethingWentWrong')}</h2>
+          <p className="text-slate-600 mb-6">{error || t('callDetail.callNotFound')}</p>
           <Link
             to="/mycalls"
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
@@ -295,7 +297,7 @@ const CallDetail = () => {
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
-            Back to My Calls
+            {t('callDetail.backToMyCalls')}
           </Link>
         </div>
       </div>
@@ -501,9 +503,9 @@ const CallDetail = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Mobile Header */}
-      <div className="lg:hidden bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
+        <div className="lg:hidden bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-semibold text-gray-900">Call Details</h1>
+          <h1 className="text-lg font-semibold text-gray-900">{t('callDetail.title')}</h1>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
@@ -562,7 +564,7 @@ const CallDetail = () => {
                     <svg className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
-                    Back to My Calls
+                    {t('callDetail.backToMyCalls')}
                   </Link>
                   
                   {/* Auto-Refresh Status */}
@@ -573,10 +575,10 @@ const CallDetail = () => {
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                           <div className="absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75"></div>
                 </div>
-                        <span className="hidden sm:inline">Auto-refreshing...</span>
+                        <span className="hidden sm:inline">{t('callDetail.autoRefreshing')}</span>
                         {lastRefreshTime && (
                           <span className="hidden md:inline text-xs text-slate-500">
-                            Last: {new Date(lastRefreshTime).toLocaleTimeString()}
+                            {t('callDetail.last')}: {new Date(lastRefreshTime).toLocaleTimeString()}
                           </span>
                         )}
                       </div>
@@ -589,7 +591,7 @@ const CallDetail = () => {
                         fetchCallData(false);
                       }}
                       className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
-                      title="Refresh now"
+                      title={t('callDetail.refreshNow')}
                     >
                       <svg 
                         className="w-4 h-4 mr-1.5" 
@@ -599,7 +601,7 @@ const CallDetail = () => {
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
-                      Refresh
+                      {t('callDetail.refresh')}
                     </button>
                     
                     {/* Toggle Auto-Refresh */}
@@ -610,7 +612,7 @@ const CallDetail = () => {
                           ? 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100' 
                           : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                       }`}
-                      title={autoRefresh ? 'Disable auto-refresh' : 'Enable auto-refresh'}
+                      title={autoRefresh ? t('callDetail.disableAutoRefresh') : t('callDetail.enableAutoRefresh')}
                     >
                       <svg 
                         className={`w-4 h-4 mr-1.5 ${autoRefresh ? 'animate-spin' : ''}`} 
@@ -620,7 +622,7 @@ const CallDetail = () => {
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
-                      <span className="hidden sm:inline">{autoRefresh ? 'Auto ON' : 'Auto OFF'}</span>
+                      <span className="hidden sm:inline">{autoRefresh ? t('callDetail.autoOn') : t('callDetail.autoOff')}</span>
                     </button>
                   </div>
                 </div>
@@ -638,7 +640,7 @@ const CallDetail = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                           </div>
-                          <h1 className="text-3xl font-bold">{callData ? formatTitle(callData.filename) : 'Call Details'}</h1>
+                          <h1 className="text-3xl font-bold">{callData ? formatTitle(callData.filename) : t('callDetail.title')}</h1>
                         </div>
                         
                         <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -674,13 +676,13 @@ const CallDetail = () => {
                               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                              <span className="font-medium">Duration: {formatDuration(callData.duration)}</span>
+                              <span className="font-medium">{t('callDetail.duration')}: {formatDuration(callData.duration)}</span>
                             </div>
                             <div className="flex items-center">
                               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
-                              <span className="font-medium">Date: {formatDate(callData.upload_date)}</span>
+                              <span className="font-medium">{t('callDetail.uploadDate')}: {formatDate(callData.upload_date)}</span>
                         </div>
                           </div>
                         )}
@@ -717,7 +719,7 @@ const CallDetail = () => {
                               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                               </svg>
-                              Play
+                              {t('callDetail.play')}
                             </>
                           )}
                         </button>
@@ -751,7 +753,7 @@ const CallDetail = () => {
                           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                           </svg>
-                          Download
+                          {t('callDetail.download')}
                         </button>
                       </div>
                     </div>
@@ -833,7 +835,7 @@ const CallDetail = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                           </div>
-                          <h2 className="text-xl font-bold text-gray-900">Call Transcript</h2>
+                          <h2 className="text-xl font-bold text-gray-900">{t('callDetail.callTranscript')}</h2>
                         </div>
                     </div>
                     <div className="p-6">
@@ -891,7 +893,7 @@ const CallDetail = () => {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                               </div>
-                              <p className="text-gray-500 text-lg">No transcript available for this call.</p>
+                              <p className="text-gray-500 text-lg">{t('callDetail.noTranscriptAvailable')}</p>
                           </div>
                         )}
                       </div>
@@ -909,7 +911,7 @@ const CallDetail = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                       </svg>
                                     </div>
-                          <h2 className="text-lg font-bold text-gray-900">Call Analysis</h2>
+                          <h2 className="text-lg font-bold text-gray-900">{t('callDetail.callAnalysis')}</h2>
                                       </div>
                                     </div>
                       <div className="p-6">
