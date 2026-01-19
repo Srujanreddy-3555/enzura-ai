@@ -1176,8 +1176,11 @@ class ProcessingService:
                     # Validate detected language (only Arabic and English supported)
                     detected_language = None
                     if detection_response and hasattr(detection_response, 'language'):
-                        detected_language = detection_response.language
-                        logger.info(f"🌐 Detected language: {detected_language}")
+                        raw_language = detection_response.language
+                        logger.info(f"🌐 Detected language (raw): {raw_language}")
+                        # Normalize language code (handle "english" -> "en", "arabic" -> "ar")
+                        detected_language = self._normalize_language_code(raw_language)
+                        logger.info(f"🌐 Normalized language code: {detected_language}")
                         self._validate_language(detected_language, call_id)
                     
                     # Now do the actual transcription/translation with detected language
@@ -1260,10 +1263,29 @@ class ProcessingService:
             
             raise ValueError(error_msg)
     
+    def _normalize_language_code(self, language: Optional[str]) -> Optional[str]:
+        """
+        Normalize language code from various formats to ISO 639-1 codes.
+        Handles variations like "english" -> "en", "arabic" -> "ar"
+        """
+        if language is None:
+            return None
+        
+        language_mapping = {
+            "en": "en",
+            "english": "en",
+            "ar": "ar",
+            "arabic": "ar"
+        }
+        
+        normalized = language_mapping.get(language.lower().strip(), language.lower().strip())
+        return normalized
+    
     def _validate_language(self, detected_language: Optional[str], call_id: int) -> None:
         """
         Validate that the detected language is either Arabic (ar) or English (en)
         Raises ValueError if language is not supported
+        Note: Language should already be normalized before calling this function
         """
         if detected_language is None:
             # If language is None, we can't validate - allow it to proceed
@@ -1271,7 +1293,7 @@ class ProcessingService:
             return
         
         supported_languages = ["ar", "en"]
-        detected_language_lower = detected_language.lower() if detected_language else None
+        detected_language_lower = detected_language.lower().strip() if detected_language else None
         
         if detected_language_lower not in supported_languages:
             error_msg = f"Language '{detected_language}' is not supported. Only Arabic (ar) and English (en) are currently supported."
@@ -1315,8 +1337,11 @@ class ProcessingService:
             
             # Validate detected language (only Arabic and English supported)
             if transcript_response and hasattr(transcript_response, 'language'):
-                detected_lang = transcript_response.language
-                logger.info(f"🌐 Detected language: {detected_lang}")
+                raw_lang = transcript_response.language
+                logger.info(f"🌐 Detected language (raw): {raw_lang}")
+                # Normalize language code (handle "english" -> "en", "arabic" -> "ar")
+                detected_lang = self._normalize_language_code(raw_lang)
+                logger.info(f"🌐 Normalized language code: {detected_lang}")
                 self._validate_language(detected_lang, call_id)
             
             if transcript_response and hasattr(transcript_response, 'segments'):
