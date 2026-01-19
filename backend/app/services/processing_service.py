@@ -1253,7 +1253,12 @@ class ProcessingService:
             elif "audio" in error_str or "format" in error_str or "unsupported" in error_str:
                 error_msg = "Audio file format error. Please ensure the file is a valid audio format (MP3, WAV, M4A, AAC, OGG, FLAC) and not corrupted."
             elif "language" in error_str or "translation" in error_str or "not supported" in error_str:
-                error_msg = "Language processing error. Only Arabic and English are currently supported. Please ensure your audio is in one of these languages."
+                # Check if it's a specific language validation error
+                if "not supported" in error_str and ("arabic" in error_str.lower() or "english" in error_str.lower()):
+                    error_msg = "Language processing error. The detected language could not be processed. Please ensure your audio is clear and contains speech."
+                else:
+                    # Generic language/translation error - don't restrict to Arabic/English since Whisper supports many languages
+                    error_msg = "Language processing error. Please ensure your audio contains clear speech in any supported language."
             elif "openai" in error_str or "api key" in error_str:
                 error_msg = "AI service configuration error. Please contact your administrator."
             elif "quota" in error_str or "rate limit" in error_str:
@@ -1267,24 +1272,59 @@ class ProcessingService:
         """
         Normalize language code from various formats to ISO 639-1 codes.
         Handles variations like "english" -> "en", "arabic" -> "ar"
+        Also handles common variations and full language names.
         """
         if language is None:
             return None
         
+        # Clean the language string
+        language_clean = language.lower().strip() if language else None
+        if not language_clean:
+            return None
+        
+        # Comprehensive language mapping - handle full names and variations
         language_mapping = {
+            # English variations
             "en": "en",
             "english": "en",
+            "eng": "en",
+            # Arabic variations
             "ar": "ar",
-            "arabic": "ar"
+            "arabic": "ar",
+            "ara": "ar",
+            # Common other languages (for future support or better handling)
+            "es": "es",  # Spanish
+            "spanish": "es",
+            "fr": "fr",  # French
+            "french": "fr",
+            "de": "de",  # German
+            "german": "de",
+            "zh": "zh",  # Chinese
+            "chinese": "zh",
+            "hi": "hi",  # Hindi
+            "hindi": "hi",
+            "pt": "pt",  # Portuguese
+            "portuguese": "pt",
         }
         
-        normalized = language_mapping.get(language.lower().strip(), language.lower().strip())
-        return normalized
+        # First check exact match
+        if language_clean in language_mapping:
+            return language_mapping[language_clean]
+        
+        # Check if it starts with a known prefix
+        for key, value in language_mapping.items():
+            if language_clean.startswith(key) or key in language_clean:
+                return value
+        
+        # If not found, return the cleaned lowercase version (might be valid ISO code)
+        # This allows other languages to pass through
+        return language_clean
     
     def _validate_language(self, detected_language: Optional[str], call_id: int) -> None:
         """
-        Validate that the detected language is either Arabic (ar) or English (en)
-        Raises ValueError if language is not supported
+        Validate language detection result.
+        Since we use translate_to_english=True, we can process any language,
+        but we prefer Arabic and English. Other languages will be logged as warnings.
         Note: Language should already be normalized before calling this function
         """
         if detected_language is None:
@@ -1292,15 +1332,15 @@ class ProcessingService:
             logger.warning(f"⚠️ Language detection returned None for call {call_id} - proceeding without validation")
             return
         
-        supported_languages = ["ar", "en"]
+        preferred_languages = ["ar", "en"]  # Preferred languages
         detected_language_lower = detected_language.lower().strip() if detected_language else None
         
-        if detected_language_lower not in supported_languages:
-            error_msg = f"Language '{detected_language}' is not supported. Only Arabic (ar) and English (en) are currently supported."
-            logger.error(f"❌ {error_msg}")
-            raise ValueError(error_msg)
-        
-        logger.info(f"✅ Language validated: {detected_language} (supported)")
+        if detected_language_lower in preferred_languages:
+            logger.info(f"✅ Language validated: {detected_language} (preferred language)")
+        else:
+            # Log a warning but don't fail - we can translate any language to English
+            logger.warning(f"⚠️ Detected language '{detected_language}' is not Arabic or English, but will be translated to English anyway")
+            logger.info(f"✅ Language '{detected_language}' will be processed and translated to English")
     
     async def _get_detailed_transcription(self, audio_file_path: str, language: Optional[str] = None, call_id: int = 0, translate_to_english: bool = False) -> Optional[dict]:
         """
