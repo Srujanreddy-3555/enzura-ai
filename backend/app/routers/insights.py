@@ -149,13 +149,15 @@ async def get_insight_by_call_id(
     
     if not insights:
         logger.warning(f"⚠️ No insights found for call {call_id}")
+        # Import at the top level to avoid scope issues
+        from ..services.processing_service import enqueue_call_for_processing
+        import asyncio
+        
         # Check if transcript exists (to determine if processing is needed)
         transcript = db.exec(select(Transcript).where(Transcript.call_id == call_id)).first()
         
         if not transcript:
             # No transcript, needs processing
-            from ..services.processing_service import enqueue_call_for_processing
-            import asyncio
             asyncio.create_task(enqueue_call_for_processing(call_id))
             raise HTTPException(
                 status_code=status.HTTP_202_ACCEPTED,
@@ -164,17 +166,19 @@ async def get_insight_by_call_id(
         else:
             # Transcript exists but no insights - try to create them
             try:
-                from ..services.processing_service import ProcessingService
-                processing_service = ProcessingService()
                 # Trigger insights generation
-                import asyncio
                 asyncio.create_task(enqueue_call_for_processing(call_id))
                 raise HTTPException(
                     status_code=status.HTTP_202_ACCEPTED,
                     detail="Insights are being generated. Please check again in a moment."
                 )
+            except HTTPException:
+                # Re-raise HTTP exceptions (like the one above)
+                raise
             except Exception as e:
                 logger.error(f"Error creating missing insights for call {call_id}: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail="Unable to generate insights for this call"

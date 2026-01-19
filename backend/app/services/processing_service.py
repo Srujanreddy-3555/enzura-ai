@@ -1319,20 +1319,23 @@ class ProcessingService:
                     "timestamp_granularities": ["segment", "word"]
                 }
                 
+                # Normalize language if provided (before API call)
+                normalized_language = self._normalize_language_code(language) if language else None
+                
                 # Determine which API to use and set language
                 if translate_to_english:
-                    logger.info(f"📝 Getting detailed translation to English (original: {language or 'auto-detect'})")
+                    logger.info(f"📝 Getting detailed translation to English (original: {normalized_language or language or 'auto-detect'})")
                     # Use translations API to translate to English
                     # Only set language if specified (not None)
-                    if language:
-                        whisper_params["language"] = language
+                    if normalized_language:
+                        whisper_params["language"] = normalized_language
                     transcript_response = self.openai_client.audio.translations.create(**whisper_params)
                 else:
-                    logger.info(f"📝 Getting detailed transcription in original language: {language or 'auto-detect'}")
+                    logger.info(f"📝 Getting detailed transcription in original language: {normalized_language or language or 'auto-detect'}")
                     # Use transcriptions API to keep original language
                     # Only set language if specified (not None) - None means auto-detect
-                    if language:
-                        whisper_params["language"] = language
+                    if normalized_language:
+                        whisper_params["language"] = normalized_language
                     transcript_response = self.openai_client.audio.transcriptions.create(**whisper_params)
             
             # Validate detected language (only Arabic and English supported)
