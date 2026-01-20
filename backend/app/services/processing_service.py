@@ -1163,42 +1163,76 @@ class ProcessingService:
                 # Fallback to standard transcription if diarization fails
                 logger.info(f"Falling back to standard transcription for call {call_id}")
                 with open(temp_file_path, 'rb') as audio_file:
-                    # First, detect language using verbose_json to validate (Arabic and English only)
-                    logger.info(f"🔍 Detecting language for call {call_id}...")
-                    detection_params = {
-                        "model": "whisper-1",
-                        "file": audio_file,
-                        "response_format": "verbose_json"
-                    }
-                    # Don't set language for detection - let Whisper auto-detect
-                    detection_response = self.openai_client.audio.transcriptions.create(**detection_params)
-                    
-                    # Validate detected language (only Arabic and English supported)
                     detected_language = None
-                    if detection_response and hasattr(detection_response, 'language'):
-                        raw_language = detection_response.language
-                        logger.info(f"🌐 Detected language (raw): {raw_language}")
-                        # Normalize language code (handle "english" -> "en", "arabic" -> "ar")
-                        detected_language = self._normalize_language_code(raw_language)
-                        logger.info(f"🌐 Normalized language code: {detected_language}")
-                        self._validate_language(detected_language, call_id)
                     
-                    # Now do the actual transcription/translation with detected language
+                    # Try to detect language (optional - don't fail if it doesn't work)
+                    # This helps improve accuracy but is not required
+                    try:
+                        logger.info(f"🔍 Detecting language for call {call_id}...")
+                        detection_params = {
+                            "model": "whisper-1",
+                            "file": audio_file,
+                            "response_format": "verbose_json"
+                        }
+                        # Don't set language for detection - let Whisper auto-detect
+                        detection_response = self.openai_client.audio.transcriptions.create(**detection_params)
+                        
+                        if detection_response and hasattr(detection_response, 'language'):
+                            raw_language = detection_response.language
+                            logger.info(f"🌐 Detected language (raw): {raw_language}")
+                            # Normalize language code (handle "english" -> "en", "arabic" -> "ar")
+                            detected_language = self._normalize_language_code(raw_language)
+                            logger.info(f"🌐 Normalized language code: {detected_language}")
+                            # Validate (non-blocking - just logs, doesn't raise errors)
+                            self._validate_language(detected_language, call_id)
+                        else:
+                            logger.warning(f"⚠️ Language detection did not return language field - proceeding anyway")
+                    except Exception as detection_error:
+                        # Don't fail if language detection fails - we can still process
+                        logger.warning(f"⚠️ Language detection failed: {detection_error} - proceeding without language detection")
+                        logger.info(f"✅ Will proceed with transcription/translation anyway (Whisper supports auto-detection)")
+                    
+                    # Now do the actual transcription/translation
                     audio_file.seek(0)  # Reset file pointer
                     if translate_to_english:
-                        logger.info(f"📝 Translating audio to English (original language: {detected_language or language or 'auto-detect'})")
-                        # Use translations API to translate to English
+                        logger.info(f"📝 Translating audio to English (detected: {detected_language or language or 'auto-detect'})")
+                        # Use translations API - works for ANY language (English, Arabic, etc.)
+                        # For English: returns English text
+                        # For Arabic: translates to English
+                        # For other languages: translates to English
                         whisper_params = {
                             "model": "whisper-1",
                             "file": audio_file,
                             "response_format": "text"
                         }
-                        # Use detected language if available, otherwise use provided language
+                        # Optionally set language hint if we detected it (improves accuracy)
+                        # But don't require it - translations API works without it
                         if detected_language:
                             whisper_params["language"] = detected_language
+                            logger.info(f"📝 Using detected language hint: {detected_language}")
                         elif language:
-                            whisper_params["language"] = language
-                        transcript_response = self.openai_client.audio.translations.create(**whisper_params)
+                            normalized_lang = self._normalize_language_code(language)
+                            if normalized_lang:
+                                whisper_params["language"] = normalized_lang
+                                logger.info(f"📝 Using provided language hint: {normalized_lang}")
+                        
+                        try:
+                            transcript_response = self.openai_client.audio.translations.create(**whisper_params)
+                        except Exception as translation_error:
+                            error_str = str(translation_error).lower()
+                            # If error is related to language parameter, try without it
+                            if "language" in error_str or "invalid" in error_str:
+                                logger.warning(f"⚠️ Translation with language hint failed: {translation_error}")
+                                logger.info(f"🔄 Retrying translation without language hint (auto-detect)...")
+                                whisper_params_no_lang = {
+                                    "model": "whisper-1",
+                                    "file": audio_file,
+                                    "response_format": "text"
+                                }
+                                audio_file.seek(0)
+                                transcript_response = self.openai_client.audio.translations.create(**whisper_params_no_lang)
+                            else:
+                                raise
                     else:
                         logger.info(f"📝 Transcribing audio in original language: {detected_language or language or 'auto-detect'}")
                         # Use transcriptions API to keep original language
@@ -1211,7 +1245,9 @@ class ProcessingService:
                         if detected_language:
                             whisper_params["language"] = detected_language
                         elif language:
-                            whisper_params["language"] = language
+                            normalized_lang = self._normalize_language_code(language)
+                            if normalized_lang:
+                                whisper_params["language"] = normalized_lang
                         transcript_response = self.openai_client.audio.transcriptions.create(**whisper_params)
                 
                 transcript_text = transcript_response if isinstance(transcript_response, str) else str(transcript_response)
@@ -1366,10 +1402,29 @@ class ProcessingService:
                 if translate_to_english:
                     logger.info(f"📝 Getting detailed translation to English (original: {normalized_language or language or 'auto-detect'})")
                     # Use translations API to translate to English
-                    # Only set language if specified (not None)
+                    # Works for ANY language (English, Arabic, etc.)
                     if normalized_language:
                         whisper_params["language"] = normalized_language
-                    transcript_response = self.openai_client.audio.translations.create(**whisper_params)
+                        logger.info(f"📝 Using language hint: {normalized_language}")
+                    
+                    try:
+                        transcript_response = self.openai_client.audio.translations.create(**whisper_params)
+                    except Exception as translation_error:
+                        error_str = str(translation_error).lower()
+                        # If error is related to language parameter, try without it
+                        if "language" in error_str or "invalid" in error_str:
+                            logger.warning(f"⚠️ Translation with language hint failed: {translation_error}")
+                            logger.info(f"🔄 Retrying translation without language hint (auto-detect)...")
+                            whisper_params_no_lang = {
+                                "model": "whisper-1",
+                                "file": audio_file,
+                                "response_format": "verbose_json",
+                                "timestamp_granularities": ["segment", "word"]
+                            }
+                            audio_file.seek(0)
+                            transcript_response = self.openai_client.audio.translations.create(**whisper_params_no_lang)
+                        else:
+                            raise
                 else:
                     logger.info(f"📝 Getting detailed transcription in original language: {normalized_language or language or 'auto-detect'}")
                     # Use transcriptions API to keep original language
@@ -1378,13 +1433,14 @@ class ProcessingService:
                         whisper_params["language"] = normalized_language
                     transcript_response = self.openai_client.audio.transcriptions.create(**whisper_params)
             
-            # Validate detected language (only Arabic and English supported)
+            # Validate detected language (non-blocking - just logs)
             if transcript_response and hasattr(transcript_response, 'language'):
                 raw_lang = transcript_response.language
                 logger.info(f"🌐 Detected language (raw): {raw_lang}")
                 # Normalize language code (handle "english" -> "en", "arabic" -> "ar")
                 detected_lang = self._normalize_language_code(raw_lang)
                 logger.info(f"🌐 Normalized language code: {detected_lang}")
+                # Validate (non-blocking - just logs, doesn't raise errors)
                 self._validate_language(detected_lang, call_id)
             
             if transcript_response and hasattr(transcript_response, 'segments'):
